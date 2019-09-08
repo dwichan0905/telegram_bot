@@ -14,8 +14,11 @@ Untuk cara menginstalnya, silahkan _clone_ atau _download repository_ ini, lalu:
  3. Setelah itu, buka _Terminal_ MikroTik dan ketikkan perintah berikut:
  ``import file-name=telegram_bot.rsc``
  4. Konfigurasikan pengaturan _bot_ nya di ``System > Scripts > tg_config`` dengan mengubah perintah berikut:
+ 
    ``"botAPI"="xxxxxx:xxxxxxxx-xxxxxxx"; #isi dengan Access Token Bot Telegram Anda``
+   
   ``defaultChatID"="xxxxxxxxxx"; #isi dengan ChatID Anda``
+  
   ``"trusted"="xxxxxxxxxx, xxxxxxxxx, -xxxxxxxxx"; #isi dengan beberapa ChatID Anda, bisa personal, bisa grup. Pisahkan dengan tanda koma ``
   Lalu simpan komfigurasinya.
   5. Selesai!
