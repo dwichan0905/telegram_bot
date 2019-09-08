@@ -5,7 +5,7 @@ _Script_ ini digunakan untuk mengontrol MikroTik Anda hanya dengan menggunakan s
 # Disclaimer
 _Script_ ini bersifat _open-source_. Anda dapat memodifikasi, menambah, ataupun mengurangi isi dari _script_ ini selama tidak melanggar ketentuan yang berlaku dalam lisensi _MIT_. _Script_ ini **TIDAK ADA GARANSI** selama Anda menggunakannya.
 
-## Instalasi
+# Instalasi
 Sebelum mulai instalasi, Anda harus memiliki _Access Token_ untuk Bot Telegram dan ChatID nya. Ikuti [link ini (labkom.co.id)](https://labkom.co.id/mikrotik/mikrotik-netwach-monitoring-status-access-point-hotspot-dengan-menggunakan-telegram) untuk paduan cara membuat bot telegram
 Untuk cara menginstalnya, silahkan _clone_ atau _download repository_ ini, lalu:
 
@@ -20,11 +20,12 @@ Untuk cara menginstalnya, silahkan _clone_ atau _download repository_ ini, lalu:
   ``defaultChatID"="xxxxxxxxxx"; #isi dengan ChatID Anda``
   
   ``"trusted"="xxxxxxxxxx, xxxxxxxxx, -xxxxxxxxx"; #isi dengan beberapa ChatID Anda, bisa personal, bisa grup. Pisahkan dengan tanda koma ``
-  Lalu simpan komfigurasinya.
+  
+  Lalu simpan konfigurasinya.
   5. Selesai!
 
 ## Perintah-Perintah, Parameter, dan Fungsinya
-Setiap parameter yang dimasukkan, dipisahkan dengan menggunakan spasi. misalnya ``/interface show``.
+Ketikkan perintah berikut pada kolom _chatting_ Anda dengan _bot_ Telegram Anda. Setiap _parameter_ yang dimasukkan, dipisahkan dengan menggunakan spasi, misalnya ``/interface show``.
 
 | Perintah | Parameter | Fungsi | Contoh |
 |-----------|--------------|-------|-----|
