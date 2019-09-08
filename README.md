@@ -31,7 +31,7 @@ Setiap parameter yang dimasukkan, dipisahkan dengan menggunakan spasi. misalnya 
 | ``/help`` | | Menampilkan daftar fungsi yang dapat dieksekusi | |
 | ``/start`` | | Menampilkan daftar fungsi yang dapat dieksekusi | |
 | ``/cpu`` | | Menampilkan Router ID, Load CPU, Uptime, dan total RAM yang terpakai | |
-| ``/interface`` | ``show`` | Menampilkan status terhubungnya antar port Ethernet di MikroTik | |
+| ``/interface`` | ``show`` | Menampilkan status terhubungnya antar port Ethernet di MikroTik | ``/interface show`` |
 | ``/hotspot`` | ``users`` | Menampilkan jumlah user yang sedang aktif | ``/hotspot users`` |
 | ``/hotspot`` | ``showall`` | Menampilkan seluruh detail user yang sedang aktif mulai dari Username sampai Uptime (kecuali password) | ``/hotspot showall`` |
 | ``/hotspot`` | ``add <username> <password>`` | Menambahkan user hotspot baru | ``/hotspot add telecomadmin admintelecom`` |
