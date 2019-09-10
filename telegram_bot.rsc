@@ -1,12 +1,20 @@
-# Custom Script v1.1 by DwiChan0905
+# Custom Script v1.2 by DwiChan0905
 # MikroTik Script for Telegram Bot
 # Tested on MikroTik RB750 with RouterOS ver. 6.45.5
 # just upload this file to your MikroTik's FTP. Then, import this file to apply the scripts.
 # Telegram Bot Configurations is in tg_config.
 
+/system scheduler
+add interval=10s name=Telegram on-event="/system script run tg_getUpdates" \
+    policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon \
+    start-date=sep/04/2019 start-time=18:28:04
+add name="Reboot Report" on-event=\
+    ":delay 30\r\
+    \n/system script run reboot-report" policy=\
+    ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon \
+    start-time=startup
 /system script
-add dont-require-permissions=no name=tg_getUpdates owner=admin policy=read \
-    source=":global TGLASTMSGID\r\
+add name=tg_getUpdates owner=admin policy=read source=":global TGLASTMSGID\r\
     \n:global TGLASTUPDID\r\
     \n\r\
     \n:local fconfig [:parse [/system script get tg_config source]]\r\
@@ -111,9 +119,8 @@ add dont-require-permissions=no name=tg_getUpdates owner=admin policy=read \
     \n:put \"Try to invoke external script tg_cmd_\$cmd\"\r\
     \n:local script [:parse [/system script get \"tg_cmd_\$cmd\" source]]\r\
     \n\$script params=\$params chatid=\$chatid from=\$name"
-add dont-require-permissions=no name=func_fetch owner=admin policy=\
-    ftp,read,write,policy,test source="#######################################\
-    ##################\r\
+add name=func_fetch owner=admin policy=ftp,read,write,policy,test source="####\
+    #####################################################\r\
     \n# Wrapper for /tools fetch\r\
     \n#  Input:\r\
     \n#    mode\r\
@@ -183,8 +190,7 @@ add dont-require-permissions=no name=func_fetch owner=admin policy=\
     \n#:put \$content\r\
     \nif (\$content~\"finished\") do={:return \"success\"}\r\
     \n:return \$FETCHRESULT"
-add dont-require-permissions=no name=tg_getkey owner=admin policy=read \
-    source=":local cur 0\r\
+add name=tg_getkey owner=admin policy=read source=":local cur 0\r\
     \n:local lkey [:len \$key]\r\
     \n:local res \"\"\r\
     \n:local p\r\
@@ -210,8 +216,8 @@ add dont-require-permissions=no name=tg_getkey owner=admin policy=read \
     \n } \r\
     \n}\r\
     \n:return \$res"
-add dont-require-permissions=no name=tg_sendMessage owner=admin policy=read \
-    source=":local fconfig [:parse [/system script get tg_config source]]\r\
+add name=tg_sendMessage owner=admin policy=read source=":local fconfig [:parse\
+    \_[/system script get tg_config source]]\r\
     \n\r\
     \n:local cfg [\$fconfig]\r\
     \n:local chatID (\$cfg->\"defaultChatID\")\r\
@@ -228,8 +234,8 @@ add dont-require-permissions=no name=tg_sendMessage owner=admin policy=read \
     \n:local logfile (\$tgStorage.\"tg_fetch_log.txt\")\r\
     \n\r\
     \n/tool fetch url=\$url keep-result=no"
-add dont-require-permissions=no name=tg_cmd_cpu owner=admin policy=read \
-    source=":local send [:parse [/system script get tg_sendMessage source]]\r\
+add name=tg_cmd_cpu owner=admin policy=read source=":local send [:parse [/syst\
+    em script get tg_sendMessage source]]\r\
     \n:local hotspot [:len [/ip hotspot active find]]\r\
     \n\r\
     \n:put \$params\r\
@@ -238,15 +244,15 @@ add dont-require-permissions=no name=tg_cmd_cpu owner=admin policy=read \
     \n \r\
     \n:local text \"Router ID:* \$[/system identity get name] * %0A\\\r\
     \nUptime: _\$[/system resource get uptime]_%0A\\\r\
-    \nCPU Load: _\$[/system resource get cpu-load]%_%0A \\\r\
+    \nCPU Load: _\$[/system resource get cpu-load]%_%0A\\\r\
     \nRAM: _\$(([/system resource get total-memory]-[/system resource get free\
     -memory])/(1024*1024))M/\$([/system resource get total-memory]/(1024*1024)\
     )M_\"\r\
     \n \r\
     \n\$send chat=\$chatid text=\$text mode=\"Markdown\"\r\
     \n:return true"
-add dont-require-permissions=no name=tg_cmd_public owner=admin policy=read \
-    source=":local send [:parse [/system script get tg_sendMessage source]]\r\
+add name=tg_cmd_public owner=admin policy=read source=":local send [:parse [/s\
+    ystem script get tg_sendMessage source]]\r\
     \n:put \$params\r\
     \n:put \$chatid\r\
     \n:put \$from\r\
@@ -263,7 +269,7 @@ add dont-require-permissions=no name=tg_cmd_public owner=admin policy=read \
     \n\r\
     \n\r\
     \n\$send chat=\$chatid text=\$text mode=\"Markdown\""
-add dont-require-permissions=no name=tg_cmd_ping owner=admin policy=\
+add name=tg_cmd_ping owner=admin policy=\
     ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":\
     local send [:parse [/system script get tg_sendMessage source]]\r\
     \n:local param1 [:pick \$params 0 [:find \$params \" \"]]\r\
@@ -345,9 +351,9 @@ add dont-require-permissions=no name=tg_cmd_ping owner=admin policy=\
     \n\$send chat=\$chatid text=\$text mode=\"Markdown\"\r\
     \n:return true\r\
     \n}"
-add dont-require-permissions=no name=tg_cmd_disablehotspot owner=admin \
-    policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon \
-    source=":local send [:parse [/system script get tg_sendMessage source]]\r\
+add name=tg_cmd_disablehotspot owner=admin policy=\
+    ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":\
+    local send [:parse [/system script get tg_sendMessage source]]\r\
     \n:put \$params\r\
     \n:put \$chatid\r\
     \n:put \$from\r\
@@ -357,7 +363,7 @@ add dont-require-permissions=no name=tg_cmd_disablehotspot owner=admin \
     \n\$send chat=\$chatid text=\$text mode=\"Markdown\"\r\
     \n/ip hotspot disable lantai1\r\
     \n/ip hotspot disable lantai2"
-add dont-require-permissions=no name=tg_cmd_enablehotspot owner=admin policy=\
+add name=tg_cmd_enablehotspot owner=admin policy=\
     ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":\
     local send [:parse [/system script get tg_sendMessage source]]\r\
     \n:put \$params\r\
@@ -369,9 +375,9 @@ add dont-require-permissions=no name=tg_cmd_enablehotspot owner=admin policy=\
     \n\$send chat=\$chatid text=\$text mode=\"Markdown\"\r\
     \n/ip hotspot enable lantai1\r\
     \n/ip hotspot enable lantai2"
-add dont-require-permissions=no name=tg_cmd_forceupdateddns owner=admin \
-    policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon \
-    source=":local send [:parse [/system script get tg_sendMessage source]]\r\
+add name=tg_cmd_forceupdateddns owner=admin policy=\
+    ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":\
+    local send [:parse [/system script get tg_sendMessage source]]\r\
     \n:put \$params\r\
     \n:put \$chatid\r\
     \n:put \$from\r\
@@ -380,7 +386,7 @@ add dont-require-permissions=no name=tg_cmd_forceupdateddns owner=admin \
     \n\r\
     \n\$send chat=\$chatid text=\$text mode=\"Markdown\"\r\
     \n/ip cloud force-update"
-add dont-require-permissions=no name=tg_config owner=admin policy=\
+add name=tg_config owner=admin policy=\
     ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="#\
     #####################################\r\
     \n# Telegram bot API, VVS/BlackVS 2017\r\
@@ -399,16 +405,16 @@ add dont-require-permissions=no name=tg_config owner=admin policy=\
     \n\r\
     \n:local config {\r\
     \n\"Command\"=\"telegram\";\r\
-    \n\t\"botAPI\"=\"<Telegram Bot API Here>\";\r\
-    \n\t\"defaultChatID\"=\"<Your ChatID>\";\r\
-    \n\t\"trusted\"=\"<Trusted ChatID, Separate with comma when more than 1 trusted chats>\";\r\
+    \n\t\"botAPI\"=\"xxxxxxxxxx:xxxxxxxxxxxxxxx-xxxxxxxxxxx\";\r\
+    \n\t\"defaultChatID\"=\"xxxxxxxxx\";\r\
+    \n\t\"trusted\"=\"xxxxxxxxx, -xxxxxxxxx\";\r\
     \n\t\"storage\"=\"\";\r\
     \n\t\"timeout\"=5;\r\
     \n\t\"refresh_active\"=15;\r\
     \n\t\"refresh_standby\"=300;\r\
     \n}\r\
     \nreturn \$config"
-add dont-require-permissions=no name=tg_cmd_hotspot owner=admin policy=\
+add name=tg_cmd_hotspot owner=admin policy=\
     ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":\
     local send [:parse [/system script get tg_sendMessage source]]\r\
     \n:local param1 [:pick \$params 0 [:find \$params \" \"]]\r\
@@ -433,31 +439,52 @@ add dont-require-permissions=no name=tg_cmd_hotspot owner=admin policy=\
     \n:put \$chatid\r\
     \n:put \$from\r\
     \n\r\
-    \n:if (\$params=\"users\") do={\r\
+    \n:if (\$param1=\"session\") do={\r\
+    \n:if (\$param2=\"count\") do={\r\
     \n:local output\r\
     \n:local hotspot [:len [/ip hotspot active find]]\r\
     \n:local text \"Router ID:* \$[/system identity get name] * %0A\\\r\
     \nHotspot users: _\$hotspot online_\"\r\
-    \n \r\
+    \n\r\
     \n\$send chat=\$chatid text=\$text mode=\"Markdown\"\r\
     \n}\r\
-    \n:if (\$params=\"showall\") do={\r\
+    \n:if (\$param2=\"showall\") do={\r\
     \n:local output\r\
     \n:foreach activeIndex in=[/ip hotspot active find] do={\r\
-    \n:local activeUser (\"*Username:* \".[/ip hotspot active get value-name=\
+    \n:local activeUser (\"*Username*: \".[/ip hotspot active get value-name=\
     \"user\" \$activeIndex].\"%0A\")\r\
-    \n:local activeAddress (\"*IP:* \".[/ip hotspot active get value-name=\"ad\
+    \n:local activeAddress (\"*IP*: \".[/ip hotspot active get value-name=\"ad\
     dress\" \$activeIndex].\"%0A\")\r\
-    \n:local activeMACAddr (\"*MAC:* \".[/ip hotspot active get value-name=\"m\
+    \n:local activeMACAddr (\"*MAC*: \".[/ip hotspot active get value-name=\"m\
     ac-address\" \$activeIndex].\"%0A\")\r\
-    \n:local activeLoginBy (\"*Login by:* \".[/ip hotspot active get value-nam\
-    e=\"login-by\" \$activeIndex].\"%0A\")\r\
-    \n:local activeUptime (\"*Uptime:* \".[/ip hotspot active get value-name=\
+    \n:local activeLoginBy (\"*Login Method*: \".[/ip hotspot active get value\
+    -name=\"login-by\" \$activeIndex].\"%0A\")\r\
+    \n:local activeUptime (\"*Uptime*: \".[/ip hotspot active get value-name=\
     \"uptime\" \$activeIndex].\"%0A\")\r\
+    \n:local idletime (\"*Idle Time*: \".[/ip hotspot active get value-name=\"\
+    idle-time\" \$activeIndex].\"%0A\")\r\
+    \n:local serverIn (\"*Server*: \".[/ip hotspot active get value-name=\"ser\
+    ver\" \$activeIndex].\"%0A\")\r\
     \n:set output (\$output.\$activeUser.\$activeAddress.\$activeMACAddr.\$act\
-    iveUptime.\$activeLoginBy.\"%0A\")\r\
+    iveUptime.\$idletime.\$activeLoginBy.\$serverIn.\"%0A\")\r\
     \n}\r\
     \n\$send chat=\$chatid text=(\"\$output\") mode=\"Markdown\"\r\
+    \n}\r\
+    \n:if (\$param2=\"deauth-by-user\") do={\r\
+    \n/ip hotspot active remove [find user=\"\$param3\"]\r\
+    \n\$send chat=\$chatid text=(\"Sesi User \$param3 berhasil dihapus\") mode\
+    =\"Markdown\"\r\
+    \n}\r\
+    \n:if (\$param2=\"deauth-by-mac\") do={\r\
+    \n/ip hotspot active remove [find mac-address=\"\$param3\"]\r\
+    \n\$send chat=\$chatid text=(\"Sesi MAC \$param3 berhasil dihapus\") mode=\
+    \"Markdown\"\r\
+    \n}\r\
+    \n:if (\$param2=\"deauth-by-ip\") do={\r\
+    \n/ip hotspot active remove [find address=\"\$param3\"]\r\
+    \n\$send chat=\$chatid text=(\"Sesi IP \$param3 berhasil dihapus\") mode=\
+    \"Markdown\"\r\
+    \n}\r\
     \n}\r\
     \n:if (\$param1=\"add\") do={\r\
     \n/ip hotspot user add name=\$param2 password=\$param3 profile=default\r\
@@ -494,8 +521,8 @@ add dont-require-permissions=no name=tg_cmd_hotspot owner=admin policy=\
     \n}\r\
     \n\$send chat=\$chatid text=(\"\$output\") mode=\"Markdown\"\r\
     \n}"
-add dont-require-permissions=no name=tg_cmd_start owner=admin policy=read \
-    source=":local send [:parse [/system script get tg_sendMessage source]]\r\
+add name=tg_cmd_start owner=admin policy=read source=":local send [:parse [/sy\
+    stem script get tg_sendMessage source]]\r\
     \n\r\
     \n:put \$params\r\
     \n:put \$chatid\r\
@@ -511,8 +538,12 @@ add dont-require-permissions=no name=tg_cmd_start owner=admin policy=read \
     \n/interface%0A\\\r\
     \n - show%0A\\\r\
     \n/hotspot%0A\\\r\
-    \n - users%0A\\\r\
-    \n - showall%0A\\\r\
+    \n - session%0A\\\r\
+    \n   > count%0A\\\r\
+    \n   > showall%0A\\\r\
+    \n   > deauth-by-user <username>%0A\\\r\
+    \n   > deauth-by-mac <mac address>%0A\\\r\
+    \n   > deauth-by-ip <ip>%0A\\\r\
     \n - add <username> <password>%0A\\\r\
     \n - delete <username>%0A\\\r\
     \n - disable <username>%0A\\\r\
@@ -528,8 +559,8 @@ add dont-require-permissions=no name=tg_cmd_start owner=admin policy=read \
     \n \r\
     \n\$send chat=\$chatid text=\$text mode=\"Markdown\"\r\
     \n:return true"
-add dont-require-permissions=no name=tg_cmd_interface owner=admin policy=read \
-    source=":local send [:parse [/system script get tg_sendMessage source]]\r\
+add name=tg_cmd_interface owner=admin policy=read source=":local send [:parse \
+    [/system script get tg_sendMessage source]]\r\
     \n:local param1 [:pick \$params 0 [:find \$params \" \"]]\r\
     \n:local param2 [:pick \$params ([:find \$params \" \"]+1) [:len \$params]\
     ]\r\
@@ -586,8 +617,8 @@ add dont-require-permissions=no name=tg_cmd_interface owner=admin policy=read \
     5status)\r\
     \n\t\$send chat=\$chatid text=(\"\$output\") mode=\"Markdown\"\r\
     \n}"
-add dont-require-permissions=no name=tg_cmd_help owner=admin policy=read \
-    source=":local send [:parse [/system script get tg_sendMessage source]]\r\
+add name=tg_cmd_help owner=admin policy=read source=":local send [:parse [/sys\
+    tem script get tg_sendMessage source]]\r\
     \n\r\
     \n:put \$params\r\
     \n:put \$chatid\r\
@@ -603,8 +634,12 @@ add dont-require-permissions=no name=tg_cmd_help owner=admin policy=read \
     \n/interface%0A\\\r\
     \n - show%0A\\\r\
     \n/hotspot%0A\\\r\
-    \n - users%0A\\\r\
-    \n - showall%0A\\\r\
+    \n - session%0A\\\r\
+    \n   > count%0A\\\r\
+    \n   > showall%0A\\\r\
+    \n   > deauth-by-user <username>%0A\\\r\
+    \n   > deauth-by-mac <mac address>%0A\\\r\
+    \n   > deauth-by-ip <ip>%0A\\\r\
     \n - add <username> <password>%0A\\\r\
     \n - delete <username>%0A\\\r\
     \n - disable <username>%0A\\\r\
@@ -620,8 +655,8 @@ add dont-require-permissions=no name=tg_cmd_help owner=admin policy=read \
     \n \r\
     \n\$send chat=\$chatid text=\$text mode=\"Markdown\"\r\
     \n:return true"
-add dont-require-permissions=no name=tg_cmd_hi owner=admin policy=read \
-    source=":local send [:parse [/system script get tg_sendMessage source]]\r\
+add name=tg_cmd_hi owner=admin policy=read source=":local send [:parse [/syste\
+    m script get tg_sendMessage source]]\r\
     \n\r\
     \n:put \$params\r\
     \n:put \$chatid\r\
@@ -637,8 +672,12 @@ add dont-require-permissions=no name=tg_cmd_hi owner=admin policy=read \
     \n/interface%0A\\\r\
     \n - show%0A\\\r\
     \n/hotspot%0A\\\r\
-    \n - users%0A\\\r\
-    \n - showall%0A\\\r\
+    \n - session%0A\\\r\
+    \n   > count%0A\\\r\
+    \n   > showall%0A\\\r\
+    \n   > deauth-by-user <username>%0A\\\r\
+    \n   > deauth-by-mac <mac address>%0A\\\r\
+    \n   > deauth-by-ip <ip>%0A\\\r\
     \n - add <username> <password>%0A\\\r\
     \n - delete <username>%0A\\\r\
     \n - disable <username>%0A\\\r\
@@ -654,8 +693,64 @@ add dont-require-permissions=no name=tg_cmd_hi owner=admin policy=read \
     \n \r\
     \n\$send chat=\$chatid text=\$text mode=\"Markdown\"\r\
     \n:return true"
-/system scheduler
-add disabled=yes interval=10s name=Telegram on-event=\
-    "/system script run tg_getUpdates" policy=\
-    ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon \
-    start-date=sep/04/2019 start-time=18:28:04
+add name=reboot-report owner=admin policy=\
+    ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":\
+    local send [:parse [/system script get tg_sendMessage source]]\r\
+    \n:put \$params\r\
+    \n:put \$chatid\r\
+    \n:put \$from\r\
+    \n\r\
+    \n:local reportBody \"\"\r\
+    \n \r\
+    \n:local deviceName [/system identity get name]\r\
+    \n:local deviceDate [/system clock get date]\r\
+    \n:local deviceTime [/system clock get time]\r\
+    \n:local hwModel [/system routerboard get model]\r\
+    \n:local rosVersion [/system package get system version]\r\
+    \n:local currentFirmware [/system routerboard get current-firmware]\r\
+    \n:local upgradeFirmware [/system routerboard get upgrade-firmware]\r\
+    \n \r\
+    \n \r\
+    \n:set reportBody (\$reportBody . \"Router Reboot Report for \$deviceName%\
+    0A\")\r\
+    \n:set reportBody (\$reportBody . \"Report generated on \$deviceDate at \$\
+    deviceTime%0A%0A\")\r\
+    \n \r\
+    \n:set reportBody (\$reportBody . \"Hardware Model: \$hwModel%0A\")\r\
+    \n:set reportBody (\$reportBody . \"RouterOS Version: \$rosVersion%0A\")\r\
+    \n:set reportBody (\$reportBody . \"Current Firmware: \$currentFirmware%0A\
+    \")\r\
+    \n:set reportBody (\$reportBody . \"Upgrade Firmware: \$upgradeFirmware\")\
+    \r\
+    \nif ( \$currentFirmware < \$upgradeFirmware) do={\r\
+    \n:set reportBody (\$reportBody . \"NOTE: You should upgrade the RouterBOA\
+    RD firmware!%0A\")\r\
+    \n}\r\
+    \n \r\
+    \n:set reportBody (\$reportBody . \"%0A%0A=== Critical Log Events ===%0A\"\
+    \_)\r\
+    \n \r\
+    \n:local x\r\
+    \n:local ts\r\
+    \n:local msg\r\
+    \nforeach i in=([/log find where topics~\"critical\"]) do={\r\
+    \n:set \$ts [/log get \$i time]\r\
+    \n:set \$msg [/log get \$i message]\r\
+    \n:set \$reportBody (\$reportBody  . \$ts . \" \" . \$msg . \"%0A\" )\r\
+    \n}\r\
+    \n \r\
+    \n:set reportBody (\$reportBody . \"%0A=== end of report ===%0A\")\r\
+    \n\$send chat=\$chatid text=\$reportBody mode=\"Markdown\""
+add name=tg_cmd_reboot owner=admin policy=\
+    ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":\
+    local send [:parse [/system script get tg_sendMessage source]]\r\
+    \n:put \$params\r\
+    \n:put \$chatid\r\
+    \n:put \$from\r\
+    \n\r\
+    \n:local text \"Menghidupkan ulang router dalam 30 detik...\"\r\
+    \n\r\
+    \n\$send chat=\$chatid text=\$text mode=\"Markdown\"\r\
+    \n\r\
+    \n:delay 30\r\
+    \nsystem reboot"
