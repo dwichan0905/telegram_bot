@@ -23,7 +23,7 @@ _Script_ ini bersifat _open-source_. Anda dapat memodifikasi, menambah, ataupun 
  3. Perbaikan perintah:
    - ``/reboot`` kini dapat digunakan untuk menghidupkan ulang _router_ (_delay_ 30 detik)
  4. Penambahan kondisi baru:
-   - _Router_ akan mengirimkan laporan via Telegram bahwa dirinya telah melakukan _reboot_ dan mencatat semua kasus mengapa ia melakukan itu ke dalam "Critical Log" (jeda 30 detik setelah router selesai _reboot_).
+   - Setelah _reboot_, _Router_ akan mengirimkan laporan via Telegram bahwa dirinya telah melakukan _reboot_ dan mencatat semua kasus mengapa ia melakukan itu ke dalam "Critical Log" (jeda 30 detik setelah router selesai _reboot_).
 
 #### 1.1 (8 Agustus 2019)
  1. Versi pertama
@@ -77,7 +77,7 @@ Ketikkan perintah berikut pada kolom _chatting_ Anda dengan _bot_ Telegram Anda.
 | ``/forceupdateddns`` | | Memperbarui Dynamic DNS secara paksa | ``/forceupdateddns`` |
 | ``/reboot`` | | Menghidupkan ulang MikroTik (jeda 30 detik sebelum menghidupkan ulang) | ``/reboot`` |
 
-> **Catatan**: untuk dapat menjalankan perintah ``/disablehotspot``,  ``/enablehotspot``, dan ``/interface show``, silakan Anda konfigurasikan sendiri hotspot mana yang akan di "otomatis" kan di script ``tg_cmd_disablehotspot``, ``tg_cmd_enablehotspot``, dan di ``tg_cmd_interface``.
+> **Catatan**: untuk dapat menjalankan perintah ``/disablehotspot``,  ``/enablehotspot``, dan ``/interface show``, silakan Anda konfigurasikan sendiri hotspot mana yang akan di "otomatis" kan di script ``tg_cmd_disablehotspot``, ``tg_cmd_enablehotspot``, dan ethernet mana saja yang akan ditampilkan di ``tg_cmd_interface``.
 
 # Sumber
 
