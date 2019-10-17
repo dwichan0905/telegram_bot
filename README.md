@@ -83,6 +83,6 @@ Ketikkan perintah berikut pada kolom _chatting_ Anda dengan _bot_ Telegram Anda.
 
  - [Labkom](https://labkom.co.id)
  - [Forum MikroTik (EN)](https://forum.mikrotik.com)
- - [Telegram API (EN)](api.telegram.org)
+ - [Telegram API (EN)](https://api.telegram.org)
 
 
