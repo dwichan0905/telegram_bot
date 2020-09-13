@@ -559,8 +559,7 @@ add name=tg_cmd_start owner=admin policy=read source=":local send [:parse [/sy\
     \n \r\
     \n\$send chat=\$chatid text=\$text mode=\"Markdown\"\r\
     \n:return true"
-add name=tg_cmd_interface owner=admin policy=read source=":local send [:parse \
-    [/system script get tg_sendMessage source]]\r\
+add name=tg_cmd_interface owner=admin policy=read source=":local send [:parse [/system script get tg_sendMessage source]]\r\
     \n:local param1 [:pick \$params 0 [:find \$params \" \"]]\r\
     \n:local param2 [:pick \$params ([:find \$params \" \"]+1) [:len \$params]\
     ]\r\
@@ -616,7 +615,29 @@ add name=tg_cmd_interface owner=admin policy=read source=":local send [:parse \
     \n\t:set output (\$output.\$eth01status.\$eth03status.\$eth04status.\$eth0\
     5status)\r\
     \n\t\$send chat=\$chatid text=(\"\$output\") mode=\"Markdown\"\r\
-    \n}"
+    \n}\r\
+    \n:if ((\$param1=\"show\") and (\$param2=\"all\")) do={\r\
+    \n\tlocal status \r\
+    \n\tlocal name\r\
+    \n\tforeach i in=[interface find] do={\r\
+    \n\t\tset status (\$status,[/interface get value-name=running \$i])\r\
+    \n\t\tset name (\$name,[/interface get value-name=name \$i])\r\
+    \n\t}\r\
+    \n\tput \$status\r\
+    \n\tput \$name\r\
+    \n\tlocal text\r\
+    \n\tfor e from=0 to=([:len [interface find]] - 1) do={\r\
+    \n\t\tlocal change {\"true\"=\"Connected\";\"false\"=\"Disconnected\"}\r\
+    \n\t\tlocal newstatus (\$change->[:pick \$status \$e])\r\
+    \n\t\tlocal before (\"%0AInterface \".[:pick \$name \$e].\" - Status: \".\
+    \$newstatus)\r\
+    \n\t\tput \$before\r\
+    \n\t\tset text (\$text.\$before)\r\
+    \n\t}\r\
+    \n\tput \$text\r\
+    \n\t\$send chat=\$chatid text=(\"\$text\") mode=\"Markdown\"\r\
+    \n}\r\
+    \n"
 add name=tg_cmd_help owner=admin policy=read source=":local send [:parse [/sys\
     tem script get tg_sendMessage source]]\r\
     \n\r\
