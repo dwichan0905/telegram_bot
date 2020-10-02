@@ -537,6 +537,9 @@ add name=tg_cmd_start policy=read source=":local send [:parse [/sy\
     \n/cpu%0A\\\r\
     \n/interface%0A\\\r\
     \n - show%0A\\\r\
+    \n - show all%0A\\\r\
+    \n/dhcp%0A\\\r\
+    \n - lease%0A\\\r\
     \n/hotspot%0A\\\r\
     \n - session%0A\\\r\
     \n   > count%0A\\\r\
@@ -654,6 +657,9 @@ add name=tg_cmd_help policy=read source=":local send [:parse [/sys\
     \n/cpu%0A\\\r\
     \n/interface%0A\\\r\
     \n - show%0A\\\r\
+    \n - show all%0A\\\r\
+    \n/dhcp%0A\\\r\
+    \n - lease%0A\\\r\
     \n/hotspot%0A\\\r\
     \n - session%0A\\\r\
     \n   > count%0A\\\r\
@@ -692,6 +698,9 @@ add name=tg_cmd_hi policy=read source=":local send [:parse [/syste\
     \n/cpu%0A\\\r\
     \n/interface%0A\\\r\
     \n - show%0A\\\r\
+    \n - show all%0A\\\r\
+    \n/dhcp%0A\\\r\
+    \n - lease%0A\\\r\
     \n/hotspot%0A\\\r\
     \n - session%0A\\\r\
     \n   > count%0A\\\r\
