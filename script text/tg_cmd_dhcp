@@ -1,0 +1,51 @@
+:local send [:parse [/system script get tg_sendMessage source]]
+:local param1 [:pick $params 0 [:find $params " "]]
+:local param2 [:pick $params ([:find $params " "]+1) [:len $params]]
+:local param3 [:pick [:pick $params ([:find $params " "]+1) [:len $params]] ([:find [:pick $params ([:find $params " "]+1) [:len $params]] " "]+1) [:len [:pick $params ([:find $params " "]+1) [:len $params]]]]
+:if ([:len [:find $param2 " "]]>0) do={
+	:set param2 [:pick [:pick $params ([:find $params " "]+1) [:len $params]] 0 [:find [:pick $params ([:find $params " "]+1) [:len $params]] " "]]
+} else={
+	:set param3 ""
+}
+
+:put $params
+:put $param1
+:put $param2
+:put $param3
+:put $chatid
+:put $from
+
+:local getVendor false
+:if ((params = "lease") or (params = "LEASE") or (params = "Lease"
+	local GetMacVendor do={
+		:do {
+			return ([/tool fetch mode=https http-method=get url=("https://api.macvendors.com/".[:pick [:tostr $1] 0 8 ]) as-value output=user ]->"data")
+		} on-error={
+			return "unknown vendor"
+		}
+	}
+	:local text
+	:local number (0)
+	:set text ("*Router ID: ".[/system identity get value-name=name]."*%0A%0A")
+	:foreach lease in=[/ip dhcp-server lease find] do={
+		:set number ($number + 1)
+		set text ($text."====== \F0\9F\97\82 DHCP LEASE ($number) \F0\9F\97\82 ======%0A")
+		:local addr [/ip dhcp-server lease get value-name=address $lease]
+		:set text ($text."IP Address: $addr%0A")
+		:local mac [/ip dhcp-server lease get value-name=mac-address $lease]
+		:set text ($text."Mac Address: $mac%0A")
+		:if ($getVendor = "true") do={
+			:local macvendor [$GetMacVendor $mac]
+			:set text ($text."Mac Vendor: $macvendor%0A")	
+		}
+		:local host [/ip dhcp-server lease get value-name=host-name $lease]
+		:if ([:typeof $host] = "nil") do={set host ("Unknown Hostname")}
+		:set text ($text."Hostname: $$host%0A")
+		:local lastseen [/ip dhcp-server lease get value-name=last-seen $lease]
+		:set text ($text."Uptime: $lastseen%0A")
+		:local server [/ip dhcp-server lease get value-name=server $lease]
+		:set text ($text."Server: $server%0A")
+	}
+	:set text ($text."=========== END REPORT ===========%0A")
+	$send chat=$chatid text=("$text") mode="Markdown"
+}
