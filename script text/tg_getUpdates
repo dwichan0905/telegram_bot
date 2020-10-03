@@ -90,7 +90,13 @@
  :set cmd [:pick $cmd 0 $pos]
 }
 
+
 :put "cmd=<$cmd>"
+
+:local alternativeCommand {"hi"="help"; "start"="help"; "bantuan"="help"; "hello"="help"; "halo"="help"; "hai"="help"; "hs"="hotspot"; "iface"="interface";\
+                          "hotspotenable"="enablehotspot"; "hotspotdisable"="disablehotspot"}
+:if ([:typeof ($alternativeCommand -> $cmd)] = "str") do={:set cmd ($alternativeCommand -> $cmd); :put "cmd=<$cmd>"}
+
 :put "params=<$params>"
 
 :global TGLASTCMD $cmd
