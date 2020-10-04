@@ -64,6 +64,7 @@ Ketikkan perintah berikut pada kolom _chatting_ Anda dengan _bot_ Telegram Anda.
 | ``/dhcp`` | ``lease`` | menampilkan seluruh detail pada DHCP Lease| ``/dhcp lease`` |
 | ``/interface`` | ``show`` | Menampilkan status terhubungnya antar port Ethernet di MikroTik | ``/interface show`` |
 | ``/interface`` | ``show all`` | Menampilkan status terhubungnya seluruh interface di MikroTik | ``/interface show all`` |
+| ``/hotspot`` | ``help`` | Menampilkan detail bantuan untuk perintah `/hotspot` | ``/hotspot help`` |
 | ``/hotspot`` | ``session count`` | Menampilkan jumlah user yang sedang aktif | ``/hotspot session count`` |
 | ``/hotspot`` | ``session showall`` | Menampilkan seluruh detail user yang sedang aktif mulai dari Username sampai Uptime (kecuali password) | ``/hotspot session showall`` |
 | ``/hotspot`` | ``session deauth-by-user <username>`` | Mencabut _session_ perangkat berdasarkan Username | ``/hotspot session deauth-by-user telecomadmin`` |
