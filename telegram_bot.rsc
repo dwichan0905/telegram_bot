@@ -784,30 +784,18 @@ add name=tg_cmd_reboot policy=\
     \nsystem reboot"
 add name=tg_cmd_dhcp policy=read \
     source=":local send [:parse [/system script get tg_sendMessage source]]\r\
-    \n:local param1 [:pick \$params 0 [:find \$params \" \"]]\r\
-    \n:local param2 [:pick \$params ([:find \$params \" \"]+1) [:len \$params]\
-    ]\r\
-    \n:local param3 [:pick [:pick \$params ([:find \$params \" \"]+1) [:len \$\
-    params]] ([:find [:pick \$params ([:find \$params \" \"]+1) [:len \$params\
-    ]] \" \"]+1) [:len [:pick \$params ([:find \$params \" \"]+1) [:len \$para\
-    ms]]]]\r\
-    \n:if ([:len [:find \$param2 \" \"]]>0) do={\r\
-    \n\t:set param2 [:pick [:pick \$params ([:find \$params \" \"]+1) [:len \$\
-    params]] 0 [:find [:pick \$params ([:find \$params \" \"]+1) [:len \$param\
-    s]] \" \"]]\r\
-    \n} else={\r\
-    \n\t:set param3 \"\"\r\
-    \n}\r\
+    \n:local tolower [:parse [/system script get func_lowercase source]]\r\
+    \n\r\
     \n\r\
     \n:put \$params\r\
-    \n:put \$param1\r\
-    \n:put \$param2\r\
-    \n:put \$param3\r\
     \n:put \$chatid\r\
     \n:put \$from\r\
     \n\r\
+    \n:local paramsLower [\$tolower \$params]\r\
+    \n:put \$paramsLower\r\
+    \n\r\
     \n:local getVendor false\r\
-    \n:if ((params = \"lease\") or (params = \"LEASE\") or (params = \"Lease\"\
+    \n:if (\$paramsLower = \"lease\") do={\r\
     \n\tlocal GetMacVendor do={\r\
     \n\t\t:do {\r\
     \n\t\t\treturn ([/tool fetch mode=https http-method=get url=(\"https://api\

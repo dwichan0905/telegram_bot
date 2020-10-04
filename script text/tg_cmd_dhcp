@@ -1,22 +1,16 @@
 :local send [:parse [/system script get tg_sendMessage source]]
-:local param1 [:pick $params 0 [:find $params " "]]
-:local param2 [:pick $params ([:find $params " "]+1) [:len $params]]
-:local param3 [:pick [:pick $params ([:find $params " "]+1) [:len $params]] ([:find [:pick $params ([:find $params " "]+1) [:len $params]] " "]+1) [:len [:pick $params ([:find $params " "]+1) [:len $params]]]]
-:if ([:len [:find $param2 " "]]>0) do={
-	:set param2 [:pick [:pick $params ([:find $params " "]+1) [:len $params]] 0 [:find [:pick $params ([:find $params " "]+1) [:len $params]] " "]]
-} else={
-	:set param3 ""
-}
+:local tolower [:parse [/system script get func_lowercase source]]
+
 
 :put $params
-:put $param1
-:put $param2
-:put $param3
 :put $chatid
 :put $from
 
+:local paramsLower [$tolower $params]
+:put $paramsLower
+
 :local getVendor false
-:if ((params = "lease") or (params = "LEASE") or (params = "Lease"
+:if ($paramsLower = "lease") do={
 	local GetMacVendor do={
 		:do {
 			return ([/tool fetch mode=https http-method=get url=("https://api.macvendors.com/".[:pick [:tostr $1] 0 8 ]) as-value output=user ]->"data")
@@ -26,7 +20,7 @@
 	}
 	:local text
 	:local number (0)
-	:set text ("*Router ID: ".[/system identity get value-name=name]."*%0A%0A")
+	:set text ("Router ID: $[/system identity get value-name=name]")
 	:foreach lease in=[/ip dhcp-server lease find] do={
 		:set number ($number + 1)
 		set text ($text."====== \F0\9F\97\82 DHCP LEASE ($number) \F0\9F\97\82 ======%0A")
