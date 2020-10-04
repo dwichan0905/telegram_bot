@@ -700,6 +700,7 @@ add name=tg_cmd_help policy=read source=":local send [:parse [/sys\
     \n/dhcp%0A\\\r\
     \n - lease%0A\\\r\
     \n/hotspot%0A\\\r\
+    \n - help%0A\\\r\
     \n - session%0A\\\r\
     \n   > count%0A\\\r\
     \n   > showall%0A\\\r\
