@@ -14,7 +14,7 @@ _Script_ ini digunakan untuk mengontrol MikroTik Anda hanya dengan menggunakan s
 _Script_ ini bersifat _open-source_. Anda dapat memodifikasi, menambah, ataupun mengurangi isi dari _script_ ini selama tidak melanggar ketentuan yang berlaku dalam lisensi _MIT_. _Script_ ini **TIDAK ADA GARANSI** selama Anda menggunakannya.
 
 # Kontribusi
-Kontribusi pada _repository_ ini hanya terbatas pada MikroTik Script dan Dokumentasi saja. Anda dapat berkontribusi dengan cara _Fork repository ini_, membuat _branch_ baru, lakukan perubahan, dan lakukan _Pull Request_ ke _repository_ ini. Deskripsikan apa saja yang Anda tambahkan dan apa yang Anda ubah di dalam _repository_ ini. Jangan lupa untuk menuliskan script bantuan di ```tg_cmd_start```, ```tg_cmd_help```, dan ```tg_cmd_hi``` untuk membantu apabila pengguna script ini lupa dengan perintah yang harus ia tuliskan..
+Kontribusi pada _repository_ ini hanya terbatas pada MikroTik Script dan Dokumentasi saja. Anda dapat berkontribusi dengan cara _Fork repository ini_, membuat _branch_ baru, lakukan perubahan, dan lakukan _Pull Request_ ke _repository_ ini. Deskripsikan apa saja yang Anda tambahkan dan apa yang Anda ubah di dalam _repository_ ini. Jangan lupa untuk menuliskan script bantuan di ```tg_cmd_help``` untuk membantu apabila pengguna script ini lupa dengan perintah yang harus ia tuliskan..
 
 # Riwayat Versi
 #### 1.2 (11 Agustus 2019)
@@ -64,6 +64,7 @@ Ketikkan perintah berikut pada kolom _chatting_ Anda dengan _bot_ Telegram Anda.
 | ``/dhcp`` | ``lease`` | menampilkan seluruh detail pada DHCP Lease| ``/dhcp lease`` |
 | ``/interface`` | ``show`` | Menampilkan status terhubungnya antar port Ethernet di MikroTik | ``/interface show`` |
 | ``/interface`` | ``show all`` | Menampilkan status terhubungnya seluruh interface di MikroTik | ``/interface show all`` |
+| ``/hotspot`` | ``help`` | Menampilkan detail bantuan untuk perintah `/hotspot` | ``/hotspot help`` |
 | ``/hotspot`` | ``session count`` | Menampilkan jumlah user yang sedang aktif | ``/hotspot session count`` |
 | ``/hotspot`` | ``session showall`` | Menampilkan seluruh detail user yang sedang aktif mulai dari Username sampai Uptime (kecuali password) | ``/hotspot session showall`` |
 | ``/hotspot`` | ``session deauth-by-user <username>`` | Mencabut _session_ perangkat berdasarkan Username | ``/hotspot session deauth-by-user telecomadmin`` |

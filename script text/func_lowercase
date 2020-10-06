@@ -1,0 +1,10 @@
+local alphabet {"A"="a";"B"="b";"C"="c";"D"="d";"E"="e";"F"="f";"G"="g";"H"="h";"I"="i";"J"="j";"K"="k";"L"="l";"M"="m";"N"="n";"O"="o";"P"="p";"Q"="q";"R"="r";"S"="s";"T"="t";"U"="u";"V"="v";"X"="x";"Z"="z";"Y"="y";"W"="w"};
+:local result
+:local character
+:for strings from=0 to=([:len $1] - 1) do={
+	:local single [:pick $1 $strings]
+	:set character ($alphabet->$single)
+	:if ([:typeof $character] = "str") do={set single $character}
+	:set result ($result.$single)
+}
+:return $result

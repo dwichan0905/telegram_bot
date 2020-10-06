@@ -14,7 +14,8 @@ add name="Reboot Report" on-event=\
     ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon \
     start-time=startup
 /system script
-add name=tg_getUpdates policy=read source=":global TGLASTMSGID\r\
+add name=tg_getUpdates policy=read \
+    source=":global TGLASTMSGID\r\
     \n:global TGLASTUPDID\r\
     \n\r\
     \n:local fconfig [:parse [/system script get tg_config source]]\r\
@@ -111,7 +112,17 @@ add name=tg_getUpdates policy=read source=":global TGLASTMSGID\r\
     \n :set cmd [:pick \$cmd 0 \$pos]\r\
     \n}\r\
     \n\r\
+    \n\r\
     \n:put \"cmd=<\$cmd>\"\r\
+    \n\r\
+    \n:local alternativeCommand {\"hi\"=\"help\"; \"start\"=\"help\"; \"bantua\
+    n\"=\"help\"; \"hello\"=\"help\"; \"halo\"=\"help\"; \"hai\"=\"help\"; \"h\
+    s\"=\"hotspot\"; \"iface\"=\"interface\";\\\r\
+    \n                          \"hotspotenable\"=\"enablehotspot\"; \"hotspot\
+    disable\"=\"disablehotspot\"}\r\
+    \n:if ([:typeof (\$alternativeCommand -> \$cmd)] = \"str\") do={:set cmd (\
+    \$alternativeCommand -> \$cmd); :put \"cmd=<\$cmd>\"}\r\
+    \n\r\
     \n:put \"params=<\$params>\"\r\
     \n\r\
     \n:global TGLASTCMD \$cmd\r\
@@ -414,9 +425,9 @@ add name=tg_config policy=\
     \n\t\"refresh_standby\"=300;\r\
     \n}\r\
     \nreturn \$config"
-add name=tg_cmd_hotspot policy=\
-    ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":\
-    local send [:parse [/system script get tg_sendMessage source]]\r\
+add dont-require-permissions=no name=tg_cmd_hotspot policy=read \
+    source=":local send [:parse [/system script get tg_sendMessage source]]\r\
+    \n:local tolower [:parse [/system script get func_lowercase source]]\r\
     \n:local param1 [:pick \$params 0 [:find \$params \" \"]]\r\
     \n:local param2 [:pick \$params ([:find \$params \" \"]+1) [:len \$params]\
     ]\r\
@@ -439,129 +450,157 @@ add name=tg_cmd_hotspot policy=\
     \n:put \$chatid\r\
     \n:put \$from\r\
     \n\r\
-    \n:if (\$param1=\"session\") do={\r\
-    \n:if (\$param2=\"count\") do={\r\
-    \n:local output\r\
-    \n:local hotspot [:len [/ip hotspot active find]]\r\
-    \n:local text \"Router ID:* \$[/system identity get name] * %0A\\\r\
-    \nHotspot users: _\$hotspot online_\"\r\
+    \n:local paramsLower [\$tolower \$params]\r\
+    \n:local param1Lower [\$tolower \$param1]\r\
+    \n:local param2Lower [\$tolower \$param2]\r\
+    \n:local param3Lower [\$tolower \$param3]\r\
     \n\r\
-    \n\$send chat=\$chatid text=\$text mode=\"Markdown\"\r\
+    \n:local sendHelp do={\r\
+    \n\t:local send [:parse [/system script get tg_sendMessage source]]\r\
+    \n\t:local txt \r\
+    \n\t:set txt (\"*Daftar parameter:*%0A%0A\")\r\
+    \n\t:set txt (\$txt.\">  session count - Menampilkan jumlah user yang seda\
+    ng aktif %0ACth: _/hotspot session showall_%0A\")\r\
+    \n\t:set txt (\$txt.\">  session showall - Menampilkan seluruh detail user\
+    \_yang sedang aktif %0ACth: _/hotspot session showall_%0A\")\r\
+    \n\t:set txt (\$txt.\">  session deauth-by-user _<username>_ - Mencabut se\
+    si perangkat berdasarkan Username. %0ACth: _/hotspot session deauth-by-use\
+    r admin_%0A\")\r\
+    \n\t:set txt (\$txt.\">  session deauth-by-ip _<ip>_ - Mencabut sesi peran\
+    gkat berdasarkan Alamat IP. %0ACth: _/hotspot session deauth-by-ip 192.168\
+    .1.1_%0A\")\r\
+    \n\t:set txt (\$txt.\">  session deauth-by-mac _<mac>_ - Mencabut sesi per\
+    angkat berdasarkan Alamat MAC. %0ACth: _/hotspot session deauth-by-mac AB:\
+    CD:EF:01:23:45_%0A\")\r\
+    \n\t:set txt (\$txt.\">  add _<user> <password>_ - Menambah user baru. %0A\
+    Cth: _/hotspot add admin admin123_%0A\")\r\
+    \n\t:set txt (\$txt.\">  delete _<user>_ - Menghapus user. %0ACth: _/hotsp\
+    ot delete admin _%0A\")\r\
+    \n\t:set txt (\$txt.\">  disable _<user>_ - menonaktifkan user. %0ACth: _/\
+    hotspot disable admin _%0A\")\r\
+    \n\t:set txt (\$txt.\">  enable _<user>_ - mengaktifkan user. %0ACth: _/ho\
+    tspot enable admin _%0A\")\r\
+    \n\t:set txt (\$txt.\">  change-password _<user> <new-pass>_ - mengganti p\
+    assword user. %0ACth: _/hotspot change-password admin  p4sSw_%0A%0A\")\r\
+    \n\t\$send chat=\$chatid text=(\"\$txt\") mode=\"Markdown\"\r\
     \n}\r\
-    \n:if (\$param2=\"showall\") do={\r\
-    \n:local output\r\
-    \n:foreach activeIndex in=[/ip hotspot active find] do={\r\
-    \n:local activeUser (\"*Username*: \".[/ip hotspot active get value-name=\
-    \"user\" \$activeIndex].\"%0A\")\r\
-    \n:local activeAddress (\"*IP*: \".[/ip hotspot active get value-name=\"ad\
-    dress\" \$activeIndex].\"%0A\")\r\
-    \n:local activeMACAddr (\"*MAC*: \".[/ip hotspot active get value-name=\"m\
-    ac-address\" \$activeIndex].\"%0A\")\r\
-    \n:local activeLoginBy (\"*Login Method*: \".[/ip hotspot active get value\
-    -name=\"login-by\" \$activeIndex].\"%0A\")\r\
-    \n:local activeUptime (\"*Uptime*: \".[/ip hotspot active get value-name=\
-    \"uptime\" \$activeIndex].\"%0A\")\r\
-    \n:local idletime (\"*Idle Time*: \".[/ip hotspot active get value-name=\"\
-    idle-time\" \$activeIndex].\"%0A\")\r\
-    \n:local serverIn (\"*Server*: \".[/ip hotspot active get value-name=\"ser\
-    ver\" \$activeIndex].\"%0A\")\r\
-    \n:set output (\$output.\$activeUser.\$activeAddress.\$activeMACAddr.\$act\
-    iveUptime.\$idletime.\$activeLoginBy.\$serverIn.\"%0A\")\r\
-    \n}\r\
-    \n\$send chat=\$chatid text=(\"\$output\") mode=\"Markdown\"\r\
-    \n}\r\
-    \n:if (\$param2=\"deauth-by-user\") do={\r\
-    \n/ip hotspot active remove [find user=\"\$param3\"]\r\
-    \n\$send chat=\$chatid text=(\"Sesi User \$param3 berhasil dihapus\") mode\
-    =\"Markdown\"\r\
-    \n}\r\
-    \n:if (\$param2=\"deauth-by-mac\") do={\r\
-    \n/ip hotspot active remove [find mac-address=\"\$param3\"]\r\
-    \n\$send chat=\$chatid text=(\"Sesi MAC \$param3 berhasil dihapus\") mode=\
-    \"Markdown\"\r\
-    \n}\r\
-    \n:if (\$param2=\"deauth-by-ip\") do={\r\
-    \n/ip hotspot active remove [find address=\"\$param3\"]\r\
-    \n\$send chat=\$chatid text=(\"Sesi IP \$param3 berhasil dihapus\") mode=\
-    \"Markdown\"\r\
-    \n}\r\
-    \n}\r\
-    \n:if (\$param1=\"add\") do={\r\
-    \n/ip hotspot user add name=\$param2 password=\$param3 profile=default\r\
-    \n\$send chat=\$chatid text=(\"Berhasil membuat user baru. Masuk ke hotspo\
-    t dengan:%0A%0A*Username:* \$param2%0A*Password:* \$param3\") mode=\"Markd\
-    own\"\r\
-    \n}\r\
-    \n:if (\$param1=\"delete\") do={\r\
-    \n/ip hotspot user remove [find name=\$param2]\r\
-    \n\$send chat=\$chatid text=(\"Berhasil menghapus user \$param2.\") mode=\
-    \"Markdown\"\r\
-    \n}\r\
-    \n:if (\$param1=\"disable\") do={\r\
-    \n/ip hotspot user disable [find name=\$param2]\r\
-    \n\$send chat=\$chatid text=(\"\$param2 kini telah dinonaktifkan\") mode=\
-    \"Markdown\"\r\
-    \n}\r\
-    \n:if (\$param1=\"enable\") do={\r\
-    \n/ip hotspot user enable [find name=\$param2]\r\
-    \n\$send chat=\$chatid text=(\"\$param2 kini telah diaktifkan\") mode=\"Ma\
-    rkdown\"\r\
-    \n}\r\
-    \n:if (\$param1=\"setprofile\") do={\r\
-    \n/ip hotspot user set password=\$param3 [find name=\$param2]\r\
-    \n/ip hotspot active remove [find name=\$param2]\r\
-    \n\$send chat=\$chatid text=(\"Berhasil mengganti profile menjadi \$param3\
-    .\") mode=\"Markdown\"\r\
-    \n}\r\
-    \n:if (\$param1=\"change-password\") do={\r\
-    \n/ip hotspot user set password=\$param3 [find name=\$param2]\r\
-    \n/ip hotspot active remove [find name=\$param2]\r\
-    \n\$send chat=\$chatid text=(\"Berhasil mengganti password untuk \$param2.\
-    \") mode=\"Markdown\"\r\
-    \n}\r\
-    \n\$send chat=\$chatid text=(\"\$output\") mode=\"Markdown\"\r\
-    \n}"
-add name=tg_cmd_start policy=read source=":local send [:parse [/sy\
-    stem script get tg_sendMessage source]]\r\
     \n\r\
-    \n:put \$params\r\
-    \n:put \$chatid\r\
-    \n:put \$from\r\
+    \nif (\$paramsLower = \"help\") do={\r\
+    \n\t\$sendHelp\r\
+    \n}\r\
     \n\r\
-    \n:local text \"Router ID:* \$[/system identity get name] * %0A\\\r\
-    \n==================%0A\\\r\
-    \nMENU TERSEDIA%0A\\\r\
-    \n==================%0A\\\r\
-    \n/help%0A\\\r\
-    \n/start%0A\\\r\
-    \n/cpu%0A\\\r\
-    \n/interface%0A\\\r\
-    \n - show%0A\\\r\
-    \n - show all%0A\\\r\
-    \n/dhcp%0A\\\r\
-    \n - lease%0A\\\r\
-    \n/hotspot%0A\\\r\
-    \n - session%0A\\\r\
-    \n   > count%0A\\\r\
-    \n   > showall%0A\\\r\
-    \n   > deauth-by-user <username>%0A\\\r\
-    \n   > deauth-by-mac <mac address>%0A\\\r\
-    \n   > deauth-by-ip <ip>%0A\\\r\
-    \n - add <username> <password>%0A\\\r\
-    \n - delete <username>%0A\\\r\
-    \n - disable <username>%0A\\\r\
-    \n - enable <username>%0A\\\r\
-    \n - setprofile <username> <profile>%0A\\\r\
-    \n - change-password <username> <password>%0A\\\r\
-    \n/ping to <ip>%0A\\\r\
-    \n/public%0A\\\r\
-    \n/enablehotspot%0A\\\r\
-    \n/disablehotspot%0A\\\r\
-    \n/forceupdateddns%0A\\\r\
-    \n/reboot\"\r\
-    \n \r\
-    \n\$send chat=\$chatid text=\$text mode=\"Markdown\"\r\
-    \n:return true"
+    \n:if (\$param1Lower=\"session\") do={\r\
+    \n\t:if (\$param2Lower=\"count\") do={\r\
+    \n\t\t:local output\r\
+    \n\t\t:local hotspot [:len [/ip hotspot active find]]\r\
+    \n\t\t:local text \"Router ID:* \$[/system identity get name] * %0A\\\r\
+    \n\t\tHotspot users: _\$hotspot online_\"\r\
+    \n\t\t\$send chat=\$chatid text=\$text mode=\"Markdown\"\r\
+    \n\t}\r\
+    \n\t:if (\$param2Lower=\"showall\") do={\r\
+    \n\t\t:local output\r\
+    \n\t\t:foreach activeIndex in=[/ip hotspot active find] do={\r\
+    \n\t\t\t:local activeUser (\"*Username*: \".[/ip hotspot active get value-\
+    name=\"user\" \$activeIndex].\"%0A\")\r\
+    \n\t\t\t:local activeAddress (\"*IP*: \".[/ip hotspot active get value-nam\
+    e=\"address\" \$activeIndex].\"%0A\")\r\
+    \n\t\t\t:local activeMACAddr (\"*MAC*: \".[/ip hotspot active get value-na\
+    me=\"mac-address\" \$activeIndex].\"%0A\")\r\
+    \n\t\t\t:local activeLoginBy (\"*Login Method*: \".[/ip hotspot active get\
+    \_value-name=\"login-by\" \$activeIndex].\"%0A\")\r\
+    \n\t\t\t:local activeUptime (\"*Uptime*: \".[/ip hotspot active get value-\
+    name=\"uptime\" \$activeIndex].\"%0A\")\r\
+    \n\t\t\t:local idleTime (\"*Idle Time*: \".[/ip hotspot active get value-n\
+    ame=\"idle-time\" \$activeIndex].\"%0A\")\r\
+    \n\t\t\t:local serverIn (\"*Server*: \".[/ip hotspot active get value-name\
+    =\"server\" \$activeIndex].\"%0A\")\r\
+    \n\t\t\t:set output (\$output.\$activeUser.\$activeAddress.\$activeMACAddr\
+    .\$activeUptime.\$idleTime.\$activeLoginBy.\$serverIn.\"%0A\")\r\
+    \n\t\t}\r\
+    \n\t\t\$send chat=\$chatid text=(\"\$output\") mode=\"Markdown\"\r\
+    \n\t}\r\
+    \n\t:if (\$param2Lower=\"deauth-by-user\") do={\r\
+    \n\t\t/ip hotspot active remove [find user=\"\$param3\"]\r\
+    \n\t\t\$send chat=\$chatid text=(\"Sesi User \$param3 berhasil dihapus\") \
+    mode=\"Markdown\"\r\
+    \n\t}\r\
+    \n\t:if (\$param2Lower=\"deauth-by-mac\") do={\r\
+    \n\t\t/ip hotspot active remove [find mac-address=\"\$param3\"]\r\
+    \n\t\t\$send chat=\$chatid text=(\"Sesi MAC \$param3 berhasil dihapus\") m\
+    ode=\"Markdown\"\r\
+    \n\t}\r\
+    \n\t:if (\$param2Lower=\"deauth-by-ip\") do={\r\
+    \n\t\t/ip hotspot active remove [find address=\"\$param3\"]\r\
+    \n\t\t\$send chat=\$chatid text=(\"Sesi IP \$param3 berhasil dihapus\") mo\
+    de=\"Markdown\"\r\
+    \n\t}\r\
+    \n}\r\
+    \n:if (\$param1Lower=\"add\") do={\r\
+    \n\tif ([:len [ip hotspot user find where name=\$param2]] = 0) do={\r\
+    \n\t\t/ip hotspot user add name=\$param2 password=\$param3 profile=default\
+    \r\
+    \n\t\t\$send chat=\$chatid text=(\"Berhasil membuat user baru. Masuk ke ho\
+    tspot dengan:%0A%0A*Username:* \$param2%0A*Password:* \$param3\") mode=\"M\
+    arkdown\"\r\
+    \n\t} else={\r\
+    \n\t\t\$send chat=\$chatid text=(\"User \$param2 sudah terpakai, silahkan \
+    gunakan nama lain\") mode=\"Markdown\"\r\
+    \n\t}\r\
+    \n\t\r\
+    \n}\r\
+    \n:if (\$param1Lower=\"delete\") do={\r\
+    \n\tif ([:len [ip hotspot user find where name=\$param2]] > 0) do={\r\
+    \n\t\t/ip hotspot user remove [find name=\$param2]\r\
+    \n\t\t\$send chat=\$chatid text=(\"Berhasil menghapus user \$param2.\") mo\
+    de=\"Markdown\"\r\
+    \n\t} else={\r\
+    \n\t\t\$send chat=\$chatid text=(\"User \$param2 tidak ditemukan\") mode=\
+    \"Markdown\"\r\
+    \n\t}\r\
+    \n}\r\
+    \n:if (\$param1Lower=\"disable\") do={\r\
+    \n\tif ([:len [ip hotspot user find where name=\$param2]] > 0) do={\r\
+    \n\t\t/ip hotspot user disable [find name=\$param2]\r\
+    \n\t\t\$send chat=\$chatid text=(\"\$param2 kini telah dinonaktifkan\") mo\
+    de=\"Markdown\"\r\
+    \n\t} else={\r\
+    \n\t\t\$send chat=\$chatid text=(\"User \$param2 tidak ditemukan\") mode=\
+    \"Markdown\"\r\
+    \n\t}\r\
+    \n}\r\
+    \n:if (\$param1Lower=\"enable\") do={\r\
+    \n\tif ([:len [ip hotspot user find where name=\$param2]] > 0) do={\r\
+    \n\t/ip hotspot user enable [find name=\$param2]\r\
+    \n\t\$send chat=\$chatid text=(\"\$param2 kini telah diaktifkan\") mode=\"\
+    Markdown\"\r\
+    \n\t} else={\r\
+    \n\t\t\$send chat=\$chatid text=(\"User \$param2 tidak ditemukan\") mode=\
+    \"Markdown\"\r\
+    \n\t}\r\
+    \n}\r\
+    \n:if (\$param1Lower=\"setprofile\") do={\r\
+    \n\tif ([:len [ip hotspot user find where name=\$param2]] > 0) do={\r\
+    \n\t\t/ip hotspot user set password=\$param3 [find name=\$param2]\r\
+    \n\t\t/ip hotspot active remove [find name=\$param2]\r\
+    \n\t\t\$send chat=\$chatid text=(\"Berhasil mengganti profile menjadi \$pa\
+    ram3.\") mode=\"Markdown\"\r\
+    \n\t} else={\r\
+    \n\t\t\$send chat=\$chatid text=(\"User \$param2 tidak ditemukan\") mode=\
+    \"Markdown\"\r\
+    \n\t}\r\
+    \n}\r\
+    \n:if (\$param1Lower=\"change-password\") do={\r\
+    \n\tif ([:len [ip hotspot user find where name=\$param2]] > 0) do={\r\
+    \n\t\t/ip hotspot user set password=\$param3 [find name=\$param2]\r\
+    \n\t\t/ip hotspot active remove [find name=\$param2]\r\
+    \n\t\t\$send chat=\$chatid text=(\"Berhasil mengganti password untuk \$par\
+    am2.\") mode=\"Markdown\"\r\
+    \n\t} else={\r\
+    \n\t\t\$send chat=\$chatid text=(\"User \$param2 tidak ditemukan\") mode=\
+    \"Markdown\"\r\
+    \n\t}\r\
+    \n}\r\
+    \n"
 add name=tg_cmd_interface policy=read source=":local send [:parse [/system script get tg_sendMessage source]]\r\
     \n:local param1 [:pick \$params 0 [:find \$params \" \"]]\r\
     \n:local param2 [:pick \$params ([:find \$params \" \"]+1) [:len \$params]\
@@ -661,47 +700,7 @@ add name=tg_cmd_help policy=read source=":local send [:parse [/sys\
     \n/dhcp%0A\\\r\
     \n - lease%0A\\\r\
     \n/hotspot%0A\\\r\
-    \n - session%0A\\\r\
-    \n   > count%0A\\\r\
-    \n   > showall%0A\\\r\
-    \n   > deauth-by-user <username>%0A\\\r\
-    \n   > deauth-by-mac <mac address>%0A\\\r\
-    \n   > deauth-by-ip <ip>%0A\\\r\
-    \n - add <username> <password>%0A\\\r\
-    \n - delete <username>%0A\\\r\
-    \n - disable <username>%0A\\\r\
-    \n - enable <username>%0A\\\r\
-    \n - setprofile <username> <profile>%0A\\\r\
-    \n - change-password <username> <password>%0A\\\r\
-    \n/ping to <ip>%0A\\\r\
-    \n/public%0A\\\r\
-    \n/enablehotspot%0A\\\r\
-    \n/disablehotspot%0A\\\r\
-    \n/forceupdateddns%0A\\\r\
-    \n/reboot\"\r\
-    \n \r\
-    \n\$send chat=\$chatid text=\$text mode=\"Markdown\"\r\
-    \n:return true"
-add name=tg_cmd_hi policy=read source=":local send [:parse [/syste\
-    m script get tg_sendMessage source]]\r\
-    \n\r\
-    \n:put \$params\r\
-    \n:put \$chatid\r\
-    \n:put \$from\r\
-    \n\r\
-    \n:local text \"Router ID:* \$[/system identity get name] * %0A\\\r\
-    \n==================%0A\\\r\
-    \nMENU TERSEDIA%0A\\\r\
-    \n==================%0A\\\r\
-    \n/help%0A\\\r\
-    \n/start%0A\\\r\
-    \n/cpu%0A\\\r\
-    \n/interface%0A\\\r\
-    \n - show%0A\\\r\
-    \n - show all%0A\\\r\
-    \n/dhcp%0A\\\r\
-    \n - lease%0A\\\r\
-    \n/hotspot%0A\\\r\
+    \n - help%0A\\\r\
     \n - session%0A\\\r\
     \n   > count%0A\\\r\
     \n   > showall%0A\\\r\
@@ -786,30 +785,18 @@ add name=tg_cmd_reboot policy=\
     \nsystem reboot"
 add name=tg_cmd_dhcp policy=read \
     source=":local send [:parse [/system script get tg_sendMessage source]]\r\
-    \n:local param1 [:pick \$params 0 [:find \$params \" \"]]\r\
-    \n:local param2 [:pick \$params ([:find \$params \" \"]+1) [:len \$params]\
-    ]\r\
-    \n:local param3 [:pick [:pick \$params ([:find \$params \" \"]+1) [:len \$\
-    params]] ([:find [:pick \$params ([:find \$params \" \"]+1) [:len \$params\
-    ]] \" \"]+1) [:len [:pick \$params ([:find \$params \" \"]+1) [:len \$para\
-    ms]]]]\r\
-    \n:if ([:len [:find \$param2 \" \"]]>0) do={\r\
-    \n\t:set param2 [:pick [:pick \$params ([:find \$params \" \"]+1) [:len \$\
-    params]] 0 [:find [:pick \$params ([:find \$params \" \"]+1) [:len \$param\
-    s]] \" \"]]\r\
-    \n} else={\r\
-    \n\t:set param3 \"\"\r\
-    \n}\r\
+    \n:local tolower [:parse [/system script get func_lowercase source]]\r\
+    \n\r\
     \n\r\
     \n:put \$params\r\
-    \n:put \$param1\r\
-    \n:put \$param2\r\
-    \n:put \$param3\r\
     \n:put \$chatid\r\
     \n:put \$from\r\
     \n\r\
+    \n:local paramsLower [\$tolower \$params]\r\
+    \n:put \$paramsLower\r\
+    \n\r\
     \n:local getVendor false\r\
-    \n:if ((params = \"lease\") or (params = \"LEASE\") or (params = \"Lease\"\
+    \n:if (\$paramsLower = \"lease\") do={\r\
     \n\tlocal GetMacVendor do={\r\
     \n\t\t:do {\r\
     \n\t\t\treturn ([/tool fetch mode=https http-method=get url=(\"https://api\
@@ -852,3 +839,18 @@ add name=tg_cmd_dhcp policy=read \
     \n\t\$send chat=\$chatid text=(\"\$text\") mode=\"Markdown\"\r\
     \n}\r\
     \n"
+add dont-require-permissions=no name=func_lowercase policy=read \
+    source="local alphabet {\"A\"=\"a\";\"B\"=\"b\";\"C\"=\"c\";\"D\"=\"d\";\"\
+    E\"=\"e\";\"F\"=\"f\";\"G\"=\"g\";\"H\"=\"h\";\"I\"=\"i\";\"J\"=\"j\";\"K\
+    \"=\"k\";\"L\"=\"l\";\"M\"=\"m\";\"N\"=\"n\";\"O\"=\"o\";\"P\"=\"p\";\"Q\"\
+    =\"q\";\"R\"=\"r\";\"S\"=\"s\";\"T\"=\"t\";\"U\"=\"u\";\"V\"=\"v\";\"X\"=\
+    \"x\";\"Z\"=\"z\";\"Y\"=\"y\";\"W\"=\"w\"};\r\
+    \n:local result\r\
+    \n:local character\r\
+    \n:for strings from=0 to=([:len \$1] - 1) do={\r\
+    \n\t:local single [:pick \$1 \$strings]\r\
+    \n\t:set character (\$alphabet->\$single)\r\
+    \n\t:if ([:typeof \$character] = \"str\") do={set single \$character}\r\
+    \n\t:set result (\$result.\$single)\r\
+    \n}\r\
+    \n:return \$result"
