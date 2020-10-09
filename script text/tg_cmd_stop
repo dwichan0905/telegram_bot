@@ -1,0 +1,4 @@
+:global monitoring;
+:set monitoring false;
+:delay 2s;
+/system script environment remove monitoring;

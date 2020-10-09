@@ -1,0 +1,53 @@
+:local send [:parse [/system script get tg_sendMessage source]]
+:local tolower [:parse [/system script get func_lowercase source]]
+:local param1 [:pick $params 0 [:find $params " "]]
+:local param2 [:pick $params ([:find $params " "]+1) [:len $params]]
+:local param3 [:pick [:pick $params ([:find $params " "]+1) [:len $params]] ([:find [:pick $params ([:find $params " "]+1) [:len $params]] " "]+1) [:len [:pick $params ([:find $params " "]+1) [:len $params]]]]
+:if ([:len [:find $param2 " "]]>0) do={
+	:set param2 [:pick [:pick $params ([:find $params " "]+1) [:len $params]] 0 [:find [:pick $params ([:find $params " "]+1) [:len $params]] " "]]
+} else={
+	:set param3 ""
+}
+
+:local fconfig [:parse [/system script get tg_config source]]
+:local config [$fconfig]
+:local botID ($config->"botAPI")
+
+:local counting 0;
+:local paramsLower [$tolower $params]
+:local param1Lower [$tolower $param1]
+:local param2Lower [$tolower $param2]
+:local param3Lower [$tolower $param3]
+
+:local prepare do={
+    :local gkey [:parse [/system script get tg_getkey source]]
+    :local fconfig [:parse [/system script get tg_config source]]
+    :local config [$fconfig]
+    :local botID ($config->"botAPI")
+    :local url ("https://api.telegram.org/bot".$botID."/sendMessage\?chat_id=$chatid&text=Preparing...")
+    :put $url
+    :local fetching ([/tool fetch url=$url output=user as-value]->"data")
+    :local msgID [$gkey key="message_id" text=$fetching]
+    :return $msgID
+}
+
+:global monitoring true;
+
+:if ($param1Lower = "interface") do={
+    :if ([:len [/interface find where name=$param2]] > 0) do={
+        :local msgid [$prepare chatid=$chatid]
+        :put $msgid
+        :while (($monitoring) or ($counting > 50)) do={
+            :put "a"
+            :local rxData ((([/interface monitor-traffic $param2 once as-value]->"rx-bits-per-second")/1000)/1);
+            :local txData ((([/interface monitor-traffic $param2 once as-value]->"tx-bits-per-second")/1000)/1);
+            :local text ("$param2%0ARX: $rxData kb/s%0ATX: $txData kb/s");
+            /tool fetch url="https://api.telegram.org/bot$botID/editMessageText\?chat_id=$chatid&message_id=$msgid&text=$text" output=none
+            :set counting ($counting + 1);
+            :delay 1000ms;
+        }
+        
+    } else={
+        $send chat=$chatid text=("Interface $param2 tidak ditemukan")
+    }
+}
