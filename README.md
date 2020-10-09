@@ -17,6 +17,17 @@ _Script_ ini bersifat _open-source_. Anda dapat memodifikasi, menambah, ataupun 
 Kontribusi pada _repository_ ini hanya terbatas pada MikroTik Script dan Dokumentasi saja. Anda dapat berkontribusi dengan cara _Fork repository ini_, membuat _branch_ baru, lakukan perubahan, dan lakukan _Pull Request_ ke _repository_ ini. Deskripsikan apa saja yang Anda tambahkan dan apa yang Anda ubah di dalam _repository_ ini. Jangan lupa untuk menuliskan script bantuan di ```tg_cmd_help``` untuk membantu apabila pengguna script ini lupa dengan perintah yang harus ia tuliskan..
 
 # Riwayat Versi
+#### 1.3 (8 Oktober 2020)
+- mengeluarkan setiap script ke dalam versi teks agar bisa dibaca langsung tanpa harus melakukan import ke mikrotik
+- menambah fungsi lowercase `func_lowercase`
+- modifikasi perintah hotspot, menambahkan fungsi lowercase supaya jika ada parameter yang menggunakan huruf kapital tetap bisa terbaca (misalkan ada user yang mengetikkan `/hotspot SesSion CoUnT` maka akan bisa terbaca dan bot akan mengirimkan balasan)
+- menghapus `tg_cmd_start` dan `tg_cmd_hi` (penjelasan ada dibawah)
+- menambah alternative command pada tg_getUpdates, apabila user mengetikkan: `/hi`, `/start`, `/hai`, `/halo`, `/hello`, `/bantuan`. Maka, akan menjalankan script `tg_cmd_help`. Dengan kata lain `tg_cmd_help` juga menangani perintah perintah tersebut
+- berlaku juga pada `/hotspot`. Apabila user mengetikkan `/hs` maka akan diarahkan ke `tg_cmd_hotspot`
+- modifikasi tg_cmd_dhcp agar menggunakan fungsi lowercase dan menghapus parameter yang tidak perlu
+- menambah perintah /dhcp lease
+- menambahkan perintah /interface show all
+
 #### 1.2 (11 Agustus 2019)
  1. Perbaikan _bug_ saat _import script_ (error ``invalid default argument``)
  2. Pembaruan perintah pada hotspot:
