@@ -427,7 +427,7 @@ add name=tg_config policy=\
     \n\t\"refresh_standby\"=300;\r\
     \n}\r\
     \nreturn \$config"
-add dont-require-permissions=no name=tg_cmd_hotspot policy=read \
+add name=tg_cmd_hotspot policy=read \
     source=":local send [:parse [/system script get tg_sendMessage source]]\r\
     \n:local tolower [:parse [/system script get func_lowercase source]]\r\
     \n:local param1 [:pick \$params 0 [:find \$params \" \"]]\r\
@@ -846,7 +846,7 @@ add name=tg_cmd_dhcp policy=read \
     \n\t\$send chat=\$chatid text=(\"\$text\") mode=\"Markdown\"\r\
     \n}\r\
     \n"
-add dont-require-permissions=no name=func_lowercase policy=read \
+add name=func_lowercase policy=read \
     source="local alphabet {\"A\"=\"a\";\"B\"=\"b\";\"C\"=\"c\";\"D\"=\"d\";\"\
     E\"=\"e\";\"F\"=\"f\";\"G\"=\"g\";\"H\"=\"h\";\"I\"=\"i\";\"J\"=\"j\";\"K\
     \"=\"k\";\"L\"=\"l\";\"M\"=\"m\";\"N\"=\"n\";\"O\"=\"o\";\"P\"=\"p\";\"Q\"\
