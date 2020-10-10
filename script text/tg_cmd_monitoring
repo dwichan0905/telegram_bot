@@ -54,7 +54,7 @@
         :while ($monitoring) do={
             :local rxData ((([/interface monitor-traffic $param2 once as-value]->"rx-bits-per-second")/1000)/1);
             :local txData ((([/interface monitor-traffic $param2 once as-value]->"tx-bits-per-second")/1000)/1);
-            :local text ("$param2%0ARX: $rxData kb/s%0ATX: $txData kb/s%0ACount: $counting");
+            :local text ("$param2%0ARX: $rxData kb/s%0ATX: $txData kb/s");
             /tool fetch url="https://api.telegram.org/bot$botID/editMessageText\?chat_id=$chatid&message_id=$msgid&text=$text" output=none
             :set counting ($counting + 1);
             :if ($counting > $forceStopAfter) do={$forceStop;}
@@ -69,7 +69,27 @@
 :if ($paramsLower = "cpu") do={
     :local msgid [$prepare chatid=$chatid]
     :put $msgid
-    :local identity ([/system identity get])
+    :local identity ([/system identity get name])
     :while ($monitoring) do={
         :local cpuLoad [/system resource get cpu-load]
+        :local text ("Router Id: ".$identity."%0ACPU-LOAD: ".$cpuLoad."%25")
+        /tool fetch url="https://api.telegram.org/bot$botID/editMessageText\?chat_id=$chatid&message_id=$msgid&text=$text" output=none
+        :set counting ($counting + 1);
+        :if ($counting > $forceStopAfter) do={$forceStop;}
+    }
+}
+
+:if (($paramsLower = "ram") or ($paramsLower = "memory")) do={
+    :local msgid [$prepare chatid=$chatid]
+    :put $msgid
+    :local totalMemory ([/system resource get total-memory]  / 1024 / 1024)
+    :local identity ([/system identity get name])
+    :while ($monitoring) do={
+        :local clockTime [/system clock get time]
+        :local freeMemory ([/system resource get free-memory]  / 1024 / 1024)
+        :local text ("Router Id: ".$identity."%0ATime: $clockTime%0AFree Memory: $freeMemory/$totalMemory MiB")
+        /tool fetch url="https://api.telegram.org/bot$botID/editMessageText\?chat_id=$chatid&message_id=$msgid&text=$text" output=none
+        :set counting ($counting + 1);
+        :if ($counting > $forceStopAfter) do={$forceStop;}
+    }
 }
