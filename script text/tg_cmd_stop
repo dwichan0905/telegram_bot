@@ -1,4 +1,4 @@
 :global monitoring;
 :set monitoring false;
-:delay 2s;
+:delay 5s;
 /system script environment remove monitoring;

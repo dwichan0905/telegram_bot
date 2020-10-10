@@ -14,10 +14,24 @@
 :local botID ($config->"botAPI")
 
 :local counting 0;
+
+#=======================================================
+#monitoring akan dipaksa berhenti setelah x detik (default 50)
+:local forceStopAfter 50;
+#=======================================================
+
 :local paramsLower [$tolower $params]
 :local param1Lower [$tolower $param1]
 :local param2Lower [$tolower $param2]
 :local param3Lower [$tolower $param3]
+
+:local forceStop do={
+    :global monitoring;
+    :set monitoring false;
+    :delay 2s;
+    /system script environment remove monitoring;
+    /system script job remove [find where script=tg_getUpdates];
+}
 
 :local prepare do={
     :local gkey [:parse [/system script get tg_getkey source]]
@@ -37,17 +51,25 @@
     :if ([:len [/interface find where name=$param2]] > 0) do={
         :local msgid [$prepare chatid=$chatid]
         :put $msgid
-        :while (($monitoring) or ($counting > 50)) do={
-            :put "a"
+        :while ($monitoring) do={
             :local rxData ((([/interface monitor-traffic $param2 once as-value]->"rx-bits-per-second")/1000)/1);
             :local txData ((([/interface monitor-traffic $param2 once as-value]->"tx-bits-per-second")/1000)/1);
-            :local text ("$param2%0ARX: $rxData kb/s%0ATX: $txData kb/s");
+            :local text ("$param2%0ARX: $rxData kb/s%0ATX: $txData kb/s%0ACount: $counting");
             /tool fetch url="https://api.telegram.org/bot$botID/editMessageText\?chat_id=$chatid&message_id=$msgid&text=$text" output=none
             :set counting ($counting + 1);
-            :delay 1000ms;
+            :if ($counting > $forceStopAfter) do={$forceStop;}
         }
+        :return true;
         
     } else={
         $send chat=$chatid text=("Interface $param2 tidak ditemukan")
     }
+}
+
+:if ($paramsLower = "cpu") do={
+    :local msgid [$prepare chatid=$chatid]
+    :put $msgid
+    :local identity ([/system identity get])
+    :while ($monitoring) do={
+        :local cpuLoad [/system resource get cpu-load]
 }
