@@ -87,6 +87,10 @@ Ketikkan perintah berikut pada kolom _chatting_ Anda dengan _bot_ Telegram Anda.
 | ``/hotspot`` | ``enable <username>`` | Mengaktifkan user hotspot yang dinonaktifkan | ``/hotspot enable telecomadmin`` |
 | ``/hotspot`` | ``change-password <username> <password baru>`` | Mengubah password user hotspot | ``/hotspot change-password telecomadmin p4ssw0rdny4`` |
 | ``/ping`` | | Melakukan ping ke DNS Google | ``/ping`` |
+| ``/monitoring`` | ``interface <interface>`` | Melakukan monitoring terhadap interface | ``/monitoring interface wlan1`` |
+| ``/monitoring`` | ``cpu`` | Melakukan monitoring terhadap penggunaan Cpu pada router | ``/monitoring cpu`` |
+| ``/monitoring`` | ``ram`` | Melakukan monitoring terhadap penggunaan ram/memory pada router | ``/monitoring ram`` |
+| ``/monitoring`` | ``memory`` | Melakukan monitoring terhadap penggunaan ram/memory pada router | ``/monitoring memory`` |
 | ``/ping`` | ``to <ip address>`` | Melakukan ping ke alamat IP tertentu | ``/ping to 127.0.0.1`` |
 | ``/public`` | | Menampilkan Dynamic DNS dan Public IP pada MikroTik Anda | ``/public`` |
 | ``/enablehotspot`` | | Mengaktifkan seluruh fungsi hotspot | ``/enablehotspot`` |

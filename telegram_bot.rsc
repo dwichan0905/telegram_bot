@@ -119,7 +119,9 @@ add name=tg_getUpdates policy=read \
     n\"=\"help\"; \"hello\"=\"help\"; \"halo\"=\"help\"; \"hai\"=\"help\"; \"h\
     s\"=\"hotspot\"; \"iface\"=\"interface\";\\\r\
     \n                          \"hotspotenable\"=\"enablehotspot\"; \"hotspot\
-    disable\"=\"disablehotspot\"}\r\
+    disable\"=\"disablehotspot\"; \"monitor\"=\"monitoring\"; \"berhenti\"=\"s\
+    top\"; \"watch\"=\"monitoring\";\\\r\
+    \n                          \"restart\"=\"reboot\"}\r\
     \n:if ([:typeof (\$alternativeCommand -> \$cmd)] = \"str\") do={:set cmd (\
     \$alternativeCommand -> \$cmd); :put \"cmd=<\$cmd>\"}\r\
     \n\r\
@@ -425,7 +427,7 @@ add name=tg_config policy=\
     \n\t\"refresh_standby\"=300;\r\
     \n}\r\
     \nreturn \$config"
-add dont-require-permissions=no name=tg_cmd_hotspot policy=read \
+add name=tg_cmd_hotspot policy=read \
     source=":local send [:parse [/system script get tg_sendMessage source]]\r\
     \n:local tolower [:parse [/system script get func_lowercase source]]\r\
     \n:local param1 [:pick \$params 0 [:find \$params \" \"]]\r\
@@ -714,6 +716,11 @@ add name=tg_cmd_help policy=read source=":local send [:parse [/sys\
     \n - setprofile <username> <profile>%0A\\\r\
     \n - change-password <username> <password>%0A\\\r\
     \n/ping to <ip>%0A\\\r\
+    \n/monitoring%0A\\\r\
+    \n - interface <interface>%0A\\\r\
+    \n - cpu%0A\\\r\
+    \n - ram%0A\\\r\
+    \n - memory%0A\\\r\
     \n/public%0A\\\r\
     \n/enablehotspot%0A\\\r\
     \n/disablehotspot%0A\\\r\
@@ -839,7 +846,7 @@ add name=tg_cmd_dhcp policy=read \
     \n\t\$send chat=\$chatid text=(\"\$text\") mode=\"Markdown\"\r\
     \n}\r\
     \n"
-add dont-require-permissions=no name=func_lowercase policy=read \
+add name=func_lowercase policy=read \
     source="local alphabet {\"A\"=\"a\";\"B\"=\"b\";\"C\"=\"c\";\"D\"=\"d\";\"\
     E\"=\"e\";\"F\"=\"f\";\"G\"=\"g\";\"H\"=\"h\";\"I\"=\"i\";\"J\"=\"j\";\"K\
     \"=\"k\";\"L\"=\"l\";\"M\"=\"m\";\"N\"=\"n\";\"O\"=\"o\";\"P\"=\"p\";\"Q\"\
@@ -854,3 +861,126 @@ add dont-require-permissions=no name=func_lowercase policy=read \
     \n\t:set result (\$result.\$single)\r\
     \n}\r\
     \n:return \$result"
+add name=tg_cmd_monitoring policy=read\
+    source=":local send [:parse [/system script get tg_sendMessage source\
+    ]]\r\
+    \n:local tolower [:parse [/system script get func_lowercase source]]\r\
+    \n:local param1 [:pick \$params 0 [:find \$params \" \"]]\r\
+    \n:local param2 [:pick \$params ([:find \$params \" \"]+1) [:len \$params]\
+    ]\r\
+    \n:local param3 [:pick [:pick \$params ([:find \$params \" \"]+1) [:len \$\
+    params]] ([:find [:pick \$params ([:find \$params \" \"]+1) [:len \$params\
+    ]] \" \"]+1) [:len [:pick \$params ([:find \$params \" \"]+1) [:len \$para\
+    ms]]]]\r\
+    \n:if ([:len [:find \$param2 \" \"]]>0) do={\r\
+    \n\t:set param2 [:pick [:pick \$params ([:find \$params \" \"]+1) [:len \$\
+    params]] 0 [:find [:pick \$params ([:find \$params \" \"]+1) [:len \$param\
+    s]] \" \"]]\r\
+    \n} else={\r\
+    \n\t:set param3 \"\"\r\
+    \n}\r\
+    \n\r\
+    \n:local fconfig [:parse [/system script get tg_config source]]\r\
+    \n:local config [\$fconfig]\r\
+    \n:local botID (\$config->\"botAPI\")\r\
+    \n\r\
+    \n:local counting 0;\r\
+    \n\r\
+    \n#=======================================================\r\
+    \n#monitoring akan dipaksa berhenti setelah x detik (default 50)\r\
+    \n:local forceStopAfter 50;\r\
+    \n#=======================================================\r\
+    \n\r\
+    \n:local paramsLower [\$tolower \$params]\r\
+    \n:local param1Lower [\$tolower \$param1]\r\
+    \n:local param2Lower [\$tolower \$param2]\r\
+    \n:local param3Lower [\$tolower \$param3]\r\
+    \n\r\
+    \n:local forceStop do={\r\
+    \n    :global monitoring;\r\
+    \n    :set monitoring false;\r\
+    \n    :delay 2s;\r\
+    \n    /system script environment remove monitoring;\r\
+    \n    /system script job remove [find where script=tg_getUpdates];\r\
+    \n}\r\
+    \n\r\
+    \n:local prepare do={\r\
+    \n    :local gkey [:parse [/system script get tg_getkey source]]\r\
+    \n    :local fconfig [:parse [/system script get tg_config source]]\r\
+    \n    :local config [\$fconfig]\r\
+    \n    :local botID (\$config->\"botAPI\")\r\
+    \n    :local url (\"https://api.telegram.org/bot\".\$botID.\"/sendMessage\
+    \\\?chat_id=\$chatid&text=Preparing...\")\r\
+    \n    :put \$url\r\
+    \n    :local fetching ([/tool fetch url=\$url output=user as-value]->\"dat\
+    a\")\r\
+    \n    :local msgID [\$gkey key=\"message_id\" text=\$fetching]\r\
+    \n    :return \$msgID\r\
+    \n}\r\
+    \n\r\
+    \n:global monitoring true;\r\
+    \n\r\
+    \n:if (\$param1Lower = \"interface\") do={\r\
+    \n    :if ([:len [/interface find where name=\$param2]] > 0) do={\r\
+    \n        :local msgid [\$prepare chatid=\$chatid]\r\
+    \n        :put \$msgid\r\
+    \n        :while (\$monitoring) do={\r\
+    \n            :local rxData ((([/interface monitor-traffic \$param2 once a\
+    s-value]->\"rx-bits-per-second\")/1000)/1);\r\
+    \n            :local txData ((([/interface monitor-traffic \$param2 once a\
+    s-value]->\"tx-bits-per-second\")/1000)/1);\r\
+    \n            :local text (\"\$param2%0ARX: \$rxData kb/s%0ATX: \$txData k\
+    b/s\");\r\
+    \n            /tool fetch url=\"https://api.telegram.org/bot\$botID/editMe\
+    ssageText\\\?chat_id=\$chatid&message_id=\$msgid&text=\$text\" output=none\
+    \r\
+    \n            :set counting (\$counting + 1);\r\
+    \n            :if (\$counting > \$forceStopAfter) do={\$forceStop;}\r\
+    \n        }\r\
+    \n        :return true;\r\
+    \n        \r\
+    \n    } else={\r\
+    \n        \$send chat=\$chatid text=(\"Interface \$param2 tidak ditemukan\
+    \")\r\
+    \n    }\r\
+    \n}\r\
+    \n\r\
+    \n:if (\$paramsLower = \"cpu\") do={\r\
+    \n    :local msgid [\$prepare chatid=\$chatid]\r\
+    \n    :put \$msgid\r\
+    \n    :local identity ([/system identity get name])\r\
+    \n    :while (\$monitoring) do={\r\
+    \n        :local cpuLoad [/system resource get cpu-load]\r\
+    \n        :local text (\"Router Id: \".\$identity.\"%0ACPU-LOAD: \".\$cpuL\
+    oad.\"%25\")\r\
+    \n        /tool fetch url=\"https://api.telegram.org/bot\$botID/editMessag\
+    eText\\\?chat_id=\$chatid&message_id=\$msgid&text=\$text\" output=none\r\
+    \n        :set counting (\$counting + 1);\r\
+    \n        :if (\$counting > \$forceStopAfter) do={\$forceStop;}\r\
+    \n    }\r\
+    \n}\r\
+    \n\r\
+    \n:if ((\$paramsLower = \"ram\") or (\$paramsLower = \"memory\")) do={\r\
+    \n    :local msgid [\$prepare chatid=\$chatid]\r\
+    \n    :put \$msgid\r\
+    \n    :local totalMemory ([/system resource get total-memory]  / 1024 / 10\
+    24)\r\
+    \n    :local identity ([/system identity get name])\r\
+    \n    :while (\$monitoring) do={\r\
+    \n        :local clockTime [/system clock get time]\r\
+    \n        :local freeMemory ([/system resource get free-memory]  / 1024 / \
+    1024)\r\
+    \n        :local text (\"Router Id: \".\$identity.\"%0ATime: \$clockTime%0\
+    AFree Memory: \$freeMemory/\$totalMemory MiB\")\r\
+    \n        /tool fetch url=\"https://api.telegram.org/bot\$botID/editMessag\
+    eText\\\?chat_id=\$chatid&message_id=\$msgid&text=\$text\" output=none\r\
+    \n        :set counting (\$counting + 1);\r\
+    \n        :if (\$counting > \$forceStopAfter) do={\$forceStop;}\r\
+    \n    }\r\
+    \n}\r\
+    \n"
+add name=tg_cmd_stop policy=read source=":global monitoring;\r\
+    \n:set monitoring false;\r\
+    \n:delay 5s;\r\
+    \n/system script environment remove monitoring;\r\
+    \n"
