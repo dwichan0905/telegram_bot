@@ -59,7 +59,7 @@ Untuk cara menginstalnya, silahkan _clone_ atau _download repository_ ini, lalu:
  > Isi dengan Access Token Bot Telegram Anda:
    ``"botAPI"="xxxxxx:xxxxxxxx-xxxxxxx"`` 
 
- > Isi dengan Access Token Bot Telegram Anda:
+ > Isi dengan ChatID Telegram Anda:
     ``defaultChatID"="xxxxxxxxxx"``
     
 > Isi dengan beberapa ChatID Anda, bisa personal, bisa grup. Pisahkan dengan tanda koma:
