@@ -11,7 +11,7 @@ _Script_ ini digunakan untuk mengontrol MikroTik Anda hanya dengan menggunakan s
 - [Sumber](#sumber)
 
 # Disclaimer
-_Script_ ini bersifat _open-source_. Anda dapat memodifikasi, menambah, ataupun mengurangi isi dari _script_ ini selama tidak melanggar ketentuan yang berlaku dalam lisensi _MIT_. _Script_ ini **TIDAK ADA GARANSI** selama Anda menggunakannya.
+_Script_ ini bersifat _open-source_. Anda dapat memodifikasi, menambah, ataupun mengurangi isi dari _script_ ini selama tidak melanggar ketentuan yang berlaku dalam lisensi _MIT_. _Script_ ini **TIDAK ADA GARANSI** selama Anda menggunakannya. Jika Anda mengalami kendala saat instalasi atau penggunaan _script_ ini, harap didiskusikan dan jelaskan bagaimana masalah tersebut terjadi melalui fitur [**Issues**](https://github.com/dwichan0905/telegram_bot/issues).
 
 # Kontribusi
 Kontribusi pada _repository_ ini hanya terbatas pada MikroTik Script dan Dokumentasi saja. Anda dapat berkontribusi dengan cara _Fork repository ini_, membuat _branch_ baru, lakukan perubahan, dan lakukan _Pull Request_ ke _repository_ ini. Deskripsikan apa saja yang Anda tambahkan dan apa yang Anda ubah di dalam _repository_ ini. Jangan lupa untuk menuliskan script bantuan di ```tg_cmd_help``` untuk membantu apabila pengguna script ini lupa dengan perintah yang harus ia tuliskan..
