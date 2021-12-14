@@ -984,3 +984,4 @@ add name=tg_cmd_stop policy=read source=":global monitoring;\r\
     \n:delay 5s;\r\
     \n/system script environment remove monitoring;\r\
     \n"
+telaso
