@@ -1,13 +1,18 @@
 :local send [:parse [/system script get tg_sendMessage source]]
 :local tolower [:parse [/system script get func_lowercase source]]
-
-
-:put $params
-:put $chatid
-:put $from
+:local param1 [:pick $params 0 [:find $params " "]]
+:local param2 [:pick $params ([:find $params " "]+1) [:len $params]]
+:local param3 [:pick [:pick $params ([:find $params " "]+1) [:len $params]] ([:find [:pick $params ([:find $params " "]+1) [:len $params]] " "]+1) [:len [:pick $params ([:find $params " "]+1) [:len $params]]]]
+:if ([:len [:find $param2 " "]]>0) do={
+	:set param2 [:pick [:pick $params ([:find $params " "]+1) [:len $params]] 0 [:find [:pick $params ([:find $params " "]+1) [:len $params]] " "]]
+} else={
+	:set param3 ""
+}
 
 :local paramsLower [$tolower $params]
-:put $paramsLower
+:local param1Lower [$tolower $param1]
+:local param2Lower [$tolower $param2]
+:local param3Lower [$tolower $param3]
 
 :local getVendor false
 :if ($paramsLower = "lease") do={
@@ -42,4 +47,17 @@
 	}
 	:set text ($text."=========== END REPORT ===========%0A")
 	$send chat=$chatid text=("$text") mode="Markdown"
+}
+:if ($param1Lower = "client" && $param2Lower = "release") do={
+	:if ([:len $param3] > 0) do={
+		:if ([:len [/ip dhcp-client/ find where interface=$param3]] > 0) do={
+			$send chat=$chatid text="DHCP Client akan di release dalam 5 detik" mode="Markdown";
+			:delay 5s
+			/ip dhcp-client release $param3
+		} else={
+			$send chat=$chatid text=("Maaf, DHCP client dengan interface $param3 tidak ditemukan") mode="Markdown";
+		}
+	} else={
+		$send chat=$chatid text="Silahkan masukkan interface yang ingin di release dhcpclient-nya" mode="Markdown";
+	}
 }

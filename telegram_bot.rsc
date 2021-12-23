@@ -790,17 +790,29 @@ add name=tg_cmd_reboot policy=\
     \n\r\
     \n:delay 30\r\
     \nsystem reboot"
-add name=tg_cmd_dhcp policy=read \
-    source=":local send [:parse [/system script get tg_sendMessage source]]\r\
+add name=tg_cmd_dhcp policy=\
+    ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":\
+    local send [:parse [/system script get tg_sendMessage source]]\r\
     \n:local tolower [:parse [/system script get func_lowercase source]]\r\
-    \n\r\
-    \n\r\
-    \n:put \$params\r\
-    \n:put \$chatid\r\
-    \n:put \$from\r\
+    \n:local param1 [:pick \$params 0 [:find \$params \" \"]]\r\
+    \n:local param2 [:pick \$params ([:find \$params \" \"]+1) [:len \$params]\
+    ]\r\
+    \n:local param3 [:pick [:pick \$params ([:find \$params \" \"]+1) [:len \$\
+    params]] ([:find [:pick \$params ([:find \$params \" \"]+1) [:len \$params\
+    ]] \" \"]+1) [:len [:pick \$params ([:find \$params \" \"]+1) [:len \$para\
+    ms]]]]\r\
+    \n:if ([:len [:find \$param2 \" \"]]>0) do={\r\
+    \n\t:set param2 [:pick [:pick \$params ([:find \$params \" \"]+1) [:len \$\
+    params]] 0 [:find [:pick \$params ([:find \$params \" \"]+1) [:len \$param\
+    s]] \" \"]]\r\
+    \n} else={\r\
+    \n\t:set param3 \"\"\r\
+    \n}\r\
     \n\r\
     \n:local paramsLower [\$tolower \$params]\r\
-    \n:put \$paramsLower\r\
+    \n:local param1Lower [\$tolower \$param1]\r\
+    \n:local param2Lower [\$tolower \$param2]\r\
+    \n:local param3Lower [\$tolower \$param3]\r\
     \n\r\
     \n:local getVendor false\r\
     \n:if (\$paramsLower = \"lease\") do={\r\
@@ -815,8 +827,7 @@ add name=tg_cmd_dhcp policy=read \
     \n\t}\r\
     \n\t:local text\r\
     \n\t:local number (0)\r\
-    \n\t:set text (\"*Router ID: \".[/system identity get value-name=name].\"*\
-    %0A%0A\")\r\
+    \n\t:set text (\"Router ID: \$[/system identity get value-name=name]\")\r\
     \n\t:foreach lease in=[/ip dhcp-server lease find] do={\r\
     \n\t\t:set number (\$number + 1)\r\
     \n\t\tset text (\$text.\"====== \\F0\\9F\\97\\82 DHCP LEASE (\$number) \\F\
@@ -845,7 +856,23 @@ add name=tg_cmd_dhcp policy=read \
     \n\t:set text (\$text.\"=========== END REPORT ===========%0A\")\r\
     \n\t\$send chat=\$chatid text=(\"\$text\") mode=\"Markdown\"\r\
     \n}\r\
-    \n"
+    \n:if (\$param1Lower = \"client\" && \$param2Lower = \"release\") do={\r\
+    \n\t:if ([:len \$param3] > 0) do={\r\
+    \n\t\t:if ([:len [/ip dhcp-client/ find where interface=\$param3]] > 0) do\
+    ={\r\
+    \n\t\t\t\$send chat=\$chatid text=\"DHCP Client akan di release dalam 5 de\
+    tik\" mode=\"Markdown\";\r\
+    \n\t\t\t:delay 5s\r\
+    \n\t\t\t/ip dhcp-client release \$param3\r\
+    \n\t\t} else={\r\
+    \n\t\t\t\$send chat=\$chatid text=(\"Maaf, DHCP client dengan interface \$\
+    param3 tidak ditemukan\") mode=\"Markdown\";\r\
+    \n\t\t}\r\
+    \n\t} else={\r\
+    \n\t\t\$send chat=\$chatid text=\"Silahkan masukkan interface yang ingin d\
+    i release dhcpclient-nya\" mode=\"Markdown\";\r\
+    \n\t}\r\
+    \n}"
 add name=func_lowercase policy=read \
     source="local alphabet {\"A\"=\"a\";\"B\"=\"b\";\"C\"=\"c\";\"D\"=\"d\";\"\
     E\"=\"e\";\"F\"=\"f\";\"G\"=\"g\";\"H\"=\"h\";\"I\"=\"i\";\"J\"=\"j\";\"K\
