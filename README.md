@@ -3,9 +3,6 @@
 
 _Script_ ini digunakan untuk mengontrol MikroTik Anda hanya dengan menggunakan sosial media Telegram. Terdapat banyak perintah untuk memantau, mengubah _hotspot_, menghapus _user hotspot_, menambahkan akun _hotspot_ baru, mengubah _password user hotspot_, dan lain-lain.
 
-## Repositori diarsipkan
-Repositori ini diarsipkan dan menunggu maintainer baru.
-
 # Daftar Isi
 - [Disclaimer](#disclaimer)
 - [Riwayat Versi](#riwayat-versi)
